@@ -16,8 +16,14 @@ export const overlay = cn(
   // Shown when controls visible
   'peer-data-visible/controls:opacity-100',
   // Shown when error visible (+ blur)
+  // Light DOM: peer/error is a direct sibling (React)
   'peer-data-open/error:opacity-100',
   'peer-data-open/error:duration-(--media-error-dialog-transition-duration)',
   'peer-data-open/error:delay-(--media-error-dialog-transition-delay)',
-  'peer-data-open/error:backdrop-blur-lg'
+  'peer-data-open/error:backdrop-blur-lg',
+  // Shadow DOM: peer/error is wrapped in media-error-dialog (HTML custom element)
+  '[media-error-dialog:has([data-open])~&]:opacity-100',
+  '[media-error-dialog:has([data-open])~&]:duration-(--media-error-dialog-transition-duration)',
+  '[media-error-dialog:has([data-open])~&]:delay-(--media-error-dialog-transition-delay)',
+  '[media-error-dialog:has([data-open])~&]:backdrop-blur-lg'
 );

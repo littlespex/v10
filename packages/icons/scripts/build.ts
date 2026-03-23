@@ -314,7 +314,13 @@ function debounce(fn: () => void, ms: number): () => void {
 
 async function main(): Promise<void> {
   console.log('Building icons...\n');
-  cleanDist();
+
+  // Preserve the previous build during watch startup so sibling workspace
+  // packages do not observe missing deep exports while this process rebuilds.
+  if (!isWatch) {
+    cleanDist();
+  }
+
   await build();
   console.log('\nBuild complete!');
 

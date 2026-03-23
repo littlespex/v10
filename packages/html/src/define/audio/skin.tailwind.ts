@@ -3,6 +3,7 @@ import { renderIcon } from '@videojs/icons/render';
 import {
   button,
   controls,
+  error,
   icon,
   iconContainer,
   iconFlipped,
@@ -20,6 +21,7 @@ import { SkinMixin } from '../skin-mixin';
 
 // Side-effect imports: register all custom elements used in the template.
 import '../media/container';
+import '../ui/error-dialog';
 import '../ui/mute-button';
 import '../ui/play-button';
 import '../ui/playback-rate-button';
@@ -39,6 +41,20 @@ function getTemplateHTML() {
       <!-- @deprecated slot="media" is no longer required, use the default slot instead -->
       <slot name="media"></slot>
       <slot></slot>
+
+      <media-error-dialog>
+        <media-alert-dialog class="${error.root}">
+          <div class="${error.dialog}">
+            <div class="${error.content}">
+              <media-alert-dialog-title class="${error.title}">Something went wrong.</media-alert-dialog-title>
+              <media-alert-dialog-description class="${error.description}">An error occurred. Please try again.</media-alert-dialog-description>
+            </div>
+            <div class="${error.actions}">
+              <media-alert-dialog-close class="${cn(button.base, button.primary)}">OK</media-alert-dialog-close>
+            </div>
+          </div>
+        </media-alert-dialog>
+      </media-error-dialog>
 
       <div class="${controls}">
         <media-tooltip-group>

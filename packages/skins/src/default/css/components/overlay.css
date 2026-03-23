@@ -16,7 +16,8 @@
   transition-timing-function: ease-out;
 }
 
-.media-default-skin .media-error ~ .media-overlay {
+.media-default-skin .media-error ~ .media-overlay,
+.media-default-skin media-error-dialog:has(.media-error) ~ .media-overlay {
   transition-duration: var(--media-error-dialog-transition-duration);
   transition-delay: var(--media-error-dialog-transition-delay);
 }
@@ -26,6 +27,7 @@
   opacity: 1;
 }
 
-.media-default-skin .media-error[data-open] ~ .media-overlay {
+.media-default-skin .media-error[data-open] ~ .media-overlay,
+.media-default-skin media-error-dialog:has(.media-error[data-open]) ~ .media-overlay {
   backdrop-filter: blur(16px) saturate(1.5);
 }

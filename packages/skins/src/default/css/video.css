@@ -180,7 +180,8 @@
   }
 }
 
-.media-default-skin--video .media-error[data-open] ~ .media-controls {
+.media-default-skin--video .media-error[data-open] ~ .media-controls,
+.media-default-skin--video media-error-dialog:has([data-open]) ~ .media-controls {
   display: none;
 }
 

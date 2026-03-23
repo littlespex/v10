@@ -35,6 +35,7 @@ export const controls = cn(
   // Layout
   'gap-2 p-1.5',
   'peer-data-open/error:[&_*]:invisible',
+  '[media-error-dialog:has([data-open])~&_*]:invisible',
   // Appearance
   'rounded-(--media-border-radius,0.75rem)',
   'bg-(--media-controls-background-color)',

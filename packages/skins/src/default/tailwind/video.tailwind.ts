@@ -99,6 +99,7 @@ export const controls = cn(
   'absolute bottom-3 inset-x-3',
   '[color:var(--media-color-primary,oklch(1_0_0))] z-10',
   'peer-data-open/error:hidden',
+  '[media-error-dialog:has([data-open])~&]:hidden',
   'ease-(--media-controls-transition-timing-function) origin-bottom',
   'duration-(--media-controls-transition-duration)',
   'delay-(--media-controls-transition-delay)',

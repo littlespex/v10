@@ -85,7 +85,7 @@ importers:
         version: link:../utils
       dashjs:
         specifier: ^5.0.0
-        version: 5.1.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
+        version: 5.1.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)
       hls.js:
         specifier: ^1.6.7
         version: 1.6.15
@@ -3298,12 +3298,12 @@ packages:
       '@svta/cml-structured-field-values': 1.0.1
       '@svta/cml-utils': 1.0.1
 
-  '@svta/cml-cta@1.0.1':
-    resolution: {integrity: sha512-jcXqNIPv26bmFxIOFh8/c3+6WLH4qBjKpq9qTQcggDPoHuV1YBydMsJLOnYPDeK8rNMKcAkFLbnDRvyJthu5yw==}
+  '@svta/cml-cta@1.0.2':
+    resolution: {integrity: sha512-flzQaem/WrgwaFcX+FFmZX0hYq1YCFpqXsjKgj21ZLXk4WoQ6NPqnqwCDX4S9UXunZVaUn5hEAtxpRIjYbGgvQ==}
     engines: {node: '>=20'}
     peerDependencies:
-      '@svta/cml-structured-field-values': 1.0.1
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-structured-field-values': 1.0.2
+      '@svta/cml-utils': 1.1.0
 
   '@svta/cml-dash@1.0.1':
     resolution: {integrity: sha512-lYnD1I7FUbbQND+xICI+kcRaRXuT+whKk27R8m8me5VMVu2sMsAMc7Yui6l9sxw2cBKt8pSETPYRm/1+n4LZkw==}
@@ -3324,14 +3324,14 @@ packages:
       '@svta/cml-utils': 1.0.1
       '@svta/cml-xml': 1.0.1
 
-  '@svta/cml-structured-field-values@1.0.1':
-    resolution: {integrity: sha512-Kibciki59Pon3Pn/sl5uyrbJcSpZQDKqdCfDrokBvOdLoqqcd0oFrkEPsZBiuuIODX1CB80612xe8hopeFDyBA==}
+  '@svta/cml-structured-field-values@1.0.2':
+    resolution: {integrity: sha512-c3NT8l645kx/AQdV56H5kuDC5GKlfgFdSHZiA0hR21zHdn/WnrPYjYlfr5CrZMd36TpdP0yXhAm9TVEWvo6E2w==}
     engines: {node: '>=20'}
     peerDependencies:
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-utils@1.0.1':
-    resolution: {integrity: sha512-kso3curTJfp00I1mKFoBliBApjn4aPE+wF8cPucf7TrSDVWZDeLLuF14ASmUE9m7rnrqTTK4878VvmXaXcCCfQ==}
+  '@svta/cml-utils@1.1.0':
+    resolution: {integrity: sha512-5RyHD75RYbq0clUkb/L/+JklxAq+PZRAwKZTcmqUt/ciHm79HBq0/IgrDXYvTgIRGRv8gE4GNvUWQbvRZRxZpA==}
     engines: {node: '>=20'}
 
   '@svta/cml-xml@1.0.1':
@@ -11015,45 +11015,45 @@ snapshots:
 
   '@svta/cml-608@1.0.1': {}
 
-  '@svta/cml-cmcd@1.0.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)':
+  '@svta/cml-cmcd@1.0.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-cta': 1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
-      '@svta/cml-structured-field-values': 1.0.1(@svta/cml-utils@1.0.1)
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-cta': 1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)
+      '@svta/cml-structured-field-values': 1.0.2(@svta/cml-utils@1.1.0)
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-cmsd@1.0.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)':
+  '@svta/cml-cmsd@1.0.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-cta': 1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
-      '@svta/cml-structured-field-values': 1.0.1(@svta/cml-utils@1.0.1)
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-cta': 1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)
+      '@svta/cml-structured-field-values': 1.0.2(@svta/cml-utils@1.1.0)
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)':
+  '@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-structured-field-values': 1.0.1(@svta/cml-utils@1.0.1)
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-structured-field-values': 1.0.2(@svta/cml-utils@1.1.0)
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-dash@1.0.1(@svta/cml-utils@1.0.1)':
+  '@svta/cml-dash@1.0.1(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-id3@1.0.1(@svta/cml-utils@1.0.1)':
+  '@svta/cml-id3@1.0.1(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-request@1.0.1(@svta/cml-utils@1.0.1)(@svta/cml-xml@1.0.1(@svta/cml-utils@1.0.1))':
+  '@svta/cml-request@1.0.1(@svta/cml-utils@1.1.0)(@svta/cml-xml@1.0.1(@svta/cml-utils@1.1.0))':
     dependencies:
-      '@svta/cml-utils': 1.0.1
-      '@svta/cml-xml': 1.0.1(@svta/cml-utils@1.0.1)
+      '@svta/cml-utils': 1.1.0
+      '@svta/cml-xml': 1.0.1(@svta/cml-utils@1.1.0)
 
-  '@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1)':
+  '@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-utils': 1.1.0
 
-  '@svta/cml-utils@1.0.1': {}
+  '@svta/cml-utils@1.1.0': {}
 
-  '@svta/cml-xml@1.0.1(@svta/cml-utils@1.0.1)':
+  '@svta/cml-xml@1.0.1(@svta/cml-utils@1.1.0)':
     dependencies:
-      '@svta/cml-utils': 1.0.1
+      '@svta/cml-utils': 1.1.0
 
   '@tailwindcss/node@4.2.1':
     dependencies:
@@ -11421,7 +11421,7 @@ snapshots:
       magic-string: 0.30.21
       sirv: 3.0.2
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
       ws: 8.19.0
     optionalDependencies:
       playwright: 1.58.2
@@ -11430,26 +11430,6 @@ snapshots:
       - msw
       - utf-8-validate
       - vite
-
-  '@vitest/browser@3.2.4(playwright@1.58.2)(vite@8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(vitest@3.2.4)':
-    dependencies:
-      '@testing-library/dom': 10.4.1
-      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
-      '@vitest/mocker': 3.2.4(vite@8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
-      '@vitest/utils': 3.2.4
-      magic-string: 0.30.21
-      sirv: 3.0.2
-      tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
-      ws: 8.19.0
-    optionalDependencies:
-      playwright: 1.58.2
-    transitivePeerDependencies:
-      - bufferutil
-      - msw
-      - utf-8-validate
-      - vite
-    optional: true
 
   '@vitest/coverage-v8@3.2.4(@vitest/browser@3.2.4)(vitest@3.2.4)':
     dependencies:
@@ -11466,9 +11446,9 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.2
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
     optionalDependencies:
-      '@vitest/browser': 3.2.4(playwright@1.58.2)(vite@8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.58.2)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@3.2.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -11487,15 +11467,6 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
-
-  '@vitest/mocker@3.2.4(vite@8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
-    optional: true
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -11526,7 +11497,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.15)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -12363,15 +12334,15 @@ snapshots:
 
   dargs@8.1.0: {}
 
-  dashjs@5.1.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1):
+  dashjs@5.1.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0):
     dependencies:
       '@svta/cml-608': 1.0.1
-      '@svta/cml-cmcd': 1.0.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
-      '@svta/cml-cmsd': 1.0.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
-      '@svta/cml-dash': 1.0.1(@svta/cml-utils@1.0.1)
-      '@svta/cml-id3': 1.0.1(@svta/cml-utils@1.0.1)
-      '@svta/cml-request': 1.0.1(@svta/cml-utils@1.0.1)(@svta/cml-xml@1.0.1(@svta/cml-utils@1.0.1))
-      '@svta/cml-xml': 1.0.1(@svta/cml-utils@1.0.1)
+      '@svta/cml-cmcd': 1.0.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)
+      '@svta/cml-cmsd': 1.0.1(@svta/cml-cta@1.0.2(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0))(@svta/cml-structured-field-values@1.0.2(@svta/cml-utils@1.1.0))(@svta/cml-utils@1.1.0)
+      '@svta/cml-dash': 1.0.1(@svta/cml-utils@1.1.0)
+      '@svta/cml-id3': 1.0.1(@svta/cml-utils@1.1.0)
+      '@svta/cml-request': 1.0.1(@svta/cml-utils@1.1.0)(@svta/cml-xml@1.0.1(@svta/cml-utils@1.1.0))
+      '@svta/cml-xml': 1.0.1(@svta/cml-utils@1.1.0)
       bcp-47-match: 2.0.3
       bcp-47-normalize: 2.3.0
       codem-isoboxer: 0.3.10
@@ -16536,7 +16507,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 22.19.15
-      '@vitest/browser': 3.2.4(playwright@1.58.2)(vite@8.0.0(@types/node@22.19.15)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.58.2)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@3.2.4)
       '@vitest/ui': 3.2.4(vitest@3.2.4)
       happy-dom: 18.0.1
       jsdom: 27.4.0

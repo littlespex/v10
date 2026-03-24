@@ -23,7 +23,7 @@ export class AviaTextTrackList extends EventTarget implements TextTrackList {
     // required for private-field access.
     // biome-ignore lint/correctness/noConstructorReturn: Proxy wrapping requires returning from constructor
     return new Proxy(this, {
-      get(target, prop, receiver) {
+      get(target, prop, _receiver) {
         if (typeof prop === 'string' && /^\d+$/.test(prop)) {
           return target.#tracks[Number(prop)];
         }

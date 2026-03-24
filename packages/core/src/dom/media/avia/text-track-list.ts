@@ -203,17 +203,12 @@ export class AviaTextTrackList extends EventTarget implements TextTrackList {
   }
 
   #dispatchTrackEvent(type: 'addtrack' | 'removetrack', track: AviaTextTrack): void {
-    // TrackEvent may not exist in all environments (e.g., jsdom), so fall back
-    // to a plain Event with a `track` property attached.
-    let event: TrackEvent;
-
-    if (typeof TrackEvent !== 'undefined') {
-      event = new TrackEvent(type, { track });
-    } else {
-      const fallback = new Event(type) as TrackEvent;
-      (fallback as { track: TextTrack | null }).track = track;
-      event = fallback;
-    }
+    // Cannot use `new TrackEvent(type, { track })` because the browser's
+    // TrackEvent constructor validates that `track` is a native TextTrack
+    // instance.  AviaTextTrack extends EventTarget, not the native TextTrack,
+    // so we create a plain Event and attach the `track` property manually.
+    const event = new Event(type) as TrackEvent;
+    (event as { track: TextTrack | null }).track = track;
 
     this.dispatchEvent(event);
 

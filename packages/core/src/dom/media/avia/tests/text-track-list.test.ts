@@ -58,7 +58,7 @@ describe('AviaTextTrackList', () => {
 
       expect(list.length).toBe(1);
       expect(list[0]).toBeInstanceOf(AviaTextTrack);
-      expect(list[0].id).toBe('sub-en');
+      expect(list[0]!.id).toBe('sub-en');
     });
 
     it('returns undefined for out-of-bounds index', () => {
@@ -114,7 +114,7 @@ describe('AviaTextTrackList', () => {
       const arr = Array.from(list);
 
       expect(arr).toHaveLength(2);
-      expect(arr[0].id).toBe('a');
+      expect(arr[0]!.id).toBe('a');
     });
   });
 
@@ -127,7 +127,7 @@ describe('AviaTextTrackList', () => {
       list.syncTracks([createMockAviaTrack({ id: 'sub-en' })], null, false);
 
       expect(handler).toHaveBeenCalledOnce();
-      const event = handler.mock.calls[0][0] as TrackEvent;
+      const event = handler.mock.calls[0]![0] as TrackEvent;
       expect(event.type).toBe('addtrack');
       expect(event.track).toBeInstanceOf(AviaTextTrack);
     });
@@ -142,7 +142,7 @@ describe('AviaTextTrackList', () => {
       list.syncTracks([], null, false);
 
       expect(handler).toHaveBeenCalledOnce();
-      const event = handler.mock.calls[0][0] as TrackEvent;
+      const event = handler.mock.calls[0]![0] as TrackEvent;
       expect(event.type).toBe('removetrack');
     });
 
@@ -153,7 +153,7 @@ describe('AviaTextTrackList', () => {
       const handler = vi.fn();
       list.addEventListener('change', handler);
 
-      list[0].mode = 'showing';
+      list[0]!.mode = 'showing';
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -187,7 +187,7 @@ describe('AviaTextTrackList', () => {
       const handler = vi.fn();
       list.onchange = handler;
 
-      list[0].mode = 'showing';
+      list[0]!.mode = 'showing';
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -201,7 +201,7 @@ describe('AviaTextTrackList', () => {
 
       list.connect(engine);
 
-      list[0].mode = 'showing';
+      list[0]!.mode = 'showing';
 
       expect(engine.textTrack).toBe(aviaTrack);
       expect(engine.textTrackEnabled).toBe(true);
@@ -214,7 +214,7 @@ describe('AviaTextTrackList', () => {
 
       list.connect(engine);
 
-      list[0].mode = 'hidden';
+      list[0]!.mode = 'hidden';
 
       expect(engine.textTrack).toBe(aviaTrack);
       expect(engine.textTrackEnabled).toBe(true);
@@ -229,7 +229,7 @@ describe('AviaTextTrackList', () => {
       const list = new AviaTextTrackList();
       list.connect(engine);
 
-      list[0].mode = 'disabled';
+      list[0]!.mode = 'disabled';
 
       expect(engine.textTrackEnabled).toBe(false);
     });
@@ -244,13 +244,13 @@ describe('AviaTextTrackList', () => {
       const list = new AviaTextTrackList();
       list.connect(engine);
 
-      expect(list[0].mode).toBe('showing');
-      expect(list[1].mode).toBe('disabled');
+      expect(list[0]!.mode).toBe('showing');
+      expect(list[1]!.mode).toBe('disabled');
 
-      list[1].mode = 'showing';
+      list[1]!.mode = 'showing';
 
-      expect(list[0].mode).toBe('disabled');
-      expect(list[1].mode).toBe('showing');
+      expect(list[0]!.mode).toBe('disabled');
+      expect(list[1]!.mode).toBe('showing');
     });
   });
 
@@ -270,7 +270,7 @@ describe('AviaTextTrackList', () => {
 
   describe('disconnect', () => {
     it('removes all tracks and fires removetrack for each', () => {
-      const { list, engine } = connectWithTracks([
+      const { list } = connectWithTracks([
         createMockAviaTrack({ id: 'a' }),
         createMockAviaTrack({ id: 'b', language: 'fr' }),
       ]);
@@ -298,7 +298,7 @@ describe('AviaTextTrackList', () => {
 
       list.syncTracks([createMockAviaTrack({ id: 'b' })], null, false);
       expect(() => {
-        list[0].mode = 'showing';
+        list[0]!.mode = 'showing';
       }).not.toThrow();
     });
   });
@@ -355,8 +355,8 @@ describe('AviaTextTrackList', () => {
 
       fire('texttrackchange', { textTrack: trackB });
 
-      expect(list[0].mode).toBe('disabled');
-      expect(list[1].mode).toBe('showing');
+      expect(list[0]!.mode).toBe('disabled');
+      expect(list[1]!.mode).toBe('showing');
       expect(changeHandler).toHaveBeenCalled();
     });
 
@@ -365,14 +365,14 @@ describe('AviaTextTrackList', () => {
       const { list, fire } = connectWithTracks([track]);
 
       fire('texttrackchange', { textTrack: track });
-      expect(list[0].mode).toBe('showing');
+      expect(list[0]!.mode).toBe('showing');
 
       const changeHandler = vi.fn();
       list.addEventListener('change', changeHandler);
 
       fire('texttrackenabledchange', { textTrackEnabled: false });
 
-      expect(list[0].mode).toBe('disabled');
+      expect(list[0]!.mode).toBe('disabled');
       expect(changeHandler).toHaveBeenCalled();
     });
 

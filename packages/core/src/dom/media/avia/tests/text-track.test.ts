@@ -20,7 +20,12 @@ function createMockList(): AviaTextTrackList {
 describe('AviaTextTrack', () => {
   describe('construction', () => {
     it('exposes readonly properties from avia TextTrackInterface', () => {
-      const aviaTrack = createMockAviaTrack({ id: 'sub-en', language: 'en', kind: 'subtitles', label: 'English' });
+      const aviaTrack = createMockAviaTrack({
+        id: 'sub-en',
+        language: 'en',
+        kind: AviaTextTrackKind.SUBTITLES,
+        label: 'English',
+      });
       const track = new AviaTextTrack(aviaTrack, createMockList());
 
       expect(track.id).toBe('sub-en');
@@ -30,7 +35,8 @@ describe('AviaTextTrack', () => {
     });
 
     it('defaults label to empty string when undefined', () => {
-      const aviaTrack = createMockAviaTrack({ label: undefined });
+      const { label: _, ...trackWithoutLabel } = createMockAviaTrack();
+      const aviaTrack = trackWithoutLabel as TextTrackInterface;
       const track = new AviaTextTrack(aviaTrack, createMockList());
 
       expect(track.label).toBe('');

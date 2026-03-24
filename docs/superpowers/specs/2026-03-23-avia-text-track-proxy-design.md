@@ -74,7 +74,7 @@ Implements `TextTrackList`. Owns the collection of `AviaTextTrack` instances and
 | Avia event | Proxy action |
 |---|---|
 | `texttrackschange` | Diff `detail.textTracks` against current list by `id`. Create `AviaTextTrack` for new entries, fire `addtrack`. Remove stale entries, fire `removetrack`. New tracks start with `mode: 'disabled'` unless they match the current `player.textTrack` and `player.textTrackEnabled` is true (in which case `mode: 'showing'`). |
-| `texttrackchange` | Find matching `AviaTextTrack`, update its internal mode to `showing`. Set all others to `disabled`. Fire `change`. |
+| `texttrackchange` | Find matching `AviaTextTrack` by `id` (not object reference — avia may create new objects per event). Update its internal mode to `showing`. Set all others to `disabled`. Fire `change`. |
 | `texttrackenabledchange` | If `detail.textTrackEnabled` is `false`, set the active track's mode to `disabled`. Fire `change`. |
 
 ### Outbound (proxy -> avia, triggered by `track.mode` setter)
@@ -122,7 +122,7 @@ The store's `textTrackFeature` will work with the proxy for its primary use case
 The engine is created asynchronously in `#init`, not during `attach()`. Once `#init` resolves and the engine is ready:
 
 1. Call `AviaTextTrackList.connect(engine)`
-2. Subscribe to `texttrackschange`, `texttrackchange`, `texttrackenabledchange` on the engine using an `AbortController` signal
+2. Subscribe to `texttrackschange`, `texttrackchange`, `texttrackenabledchange` on the engine via `engine.on()`. Use an `AbortController` — register `engine.off()` calls in the abort handler for cleanup (avia uses `on()`/`off()`, not DOM `addEventListener` with signal support).
 3. Read `engine.textTracks` to populate the initial list
 
 ### Detach / Destroy

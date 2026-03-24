@@ -19,10 +19,13 @@ Two standalone classes — `AviaTextTrack` and `AviaTextTrackList` — that impl
 
 Implements `TextTrack`. A lightweight wrapper around avia's `TextTrackInterface` metadata.
 
+**Backing reference:**
+- Stores a reference to the original avia `TextTrackInterface` object, used for outbound sync (`player.textTrack = aviaTrackRef`)
+
 **Readonly properties (set at construction from avia `TextTrackInterface`):**
 - `id: string`
-- `kind: TextTrackKind`
-- `label: string`
+- `kind: TextTrackKind` — avia's `FORCED` kind is mapped to `'subtitles'` (closest DOM equivalent)
+- `label: string` — defaults to `''` when avia's optional `label` is `undefined`
 - `language: string`
 
 **Mode:**
@@ -32,6 +35,10 @@ Implements `TextTrack`. A lightweight wrapper around avia's `TextTrackInterface`
 **Cue stubs (avia owns rendering):**
 - `cues` / `activeCues` — return `null`
 - `addCue()` / `removeCue()` — no-op
+
+**Other DOM stubs:**
+- `sourceBuffer` — returns `null`
+- `inBandMetadataTrackDispatchType` — returns `''`
 
 **Inheritance:**
 - Extends `EventTarget` for interface compliance (`cuechange` contract)
@@ -43,6 +50,8 @@ Implements `TextTrackList`. Owns the collection of `AviaTextTrack` instances and
 **Collection interface:**
 - `length` and indexed access (`list[0]`, `list[1]`, etc.) via JS `Proxy` trapping numeric property access
 - `getTrackById(id)` — lookup by avia track ID
+- `item(index)` — returns track at index or `null`
+- `[Symbol.iterator]()` — iterates over internal track array
 
 **Events dispatched:**
 - `addtrack` — `TrackEvent` with `track` property
@@ -55,7 +64,7 @@ Implements `TextTrackList`. Owns the collection of `AviaTextTrack` instances and
 - `onchange`
 
 **Engine reference:**
-- Set via `connect(engine)` during attach
+- Set via `connect(engine)` after async engine initialization (not during `attach()` — the engine is created asynchronously in `#init`)
 - Cleared on detach/destroy
 
 ## Event Flow
@@ -64,8 +73,8 @@ Implements `TextTrackList`. Owns the collection of `AviaTextTrack` instances and
 
 | Avia event | Proxy action |
 |---|---|
-| `texttrackschange` | Diff `detail.textTracks` against current list. Create `AviaTextTrack` for new entries, fire `addtrack`. Remove stale entries, fire `removetrack`. |
-| `texttrackchange` | Find matching `AviaTextTrack`, update its internal mode to `showing`/`hidden`. Set all others to `disabled`. Fire `change`. |
+| `texttrackschange` | Diff `detail.textTracks` against current list by `id`. Create `AviaTextTrack` for new entries, fire `addtrack`. Remove stale entries, fire `removetrack`. New tracks start with `mode: 'disabled'` unless they match the current `player.textTrack` and `player.textTrackEnabled` is true (in which case `mode: 'showing'`). |
+| `texttrackchange` | Find matching `AviaTextTrack`, update its internal mode to `showing`. Set all others to `disabled`. Fire `change`. |
 | `texttrackenabledchange` | If `detail.textTrackEnabled` is `false`, set the active track's mode to `disabled`. Fire `change`. |
 
 ### Outbound (proxy -> avia, triggered by `track.mode` setter)
@@ -85,12 +94,32 @@ When an inbound avia event updates track modes, the proxy sets an internal flag 
 - `showing` and `hidden` both mean "enabled" in avia terms (`textTrackEnabled = true`)
 - `disabled` means disabled (`textTrackEnabled = false` if it's the active track)
 - The distinction between `showing` and `hidden` maps to avia's `renderTextTrackNatively` option, which is set at player creation time and not per-track
+- **Inbound events always set the active track to `showing`** (not `hidden`), because the store's `textTrackFeature` checks `track.mode === 'showing'` to derive `subtitlesShowing`. Using `hidden` would break the subtitle toggle UI.
+
+### Batch mode changes
+
+The store's `toggleSubtitles` iterates all subtitle/caption tracks and sets their mode in a loop. Under single-track semantics, each `showing` assignment disables the previous track — the last one wins. This is acceptable behavior and does not require batching.
+
+## Store Feature Compatibility
+
+The store's `textTrackFeature` will work with the proxy for its primary use cases, with known limitations:
+
+**Works:**
+- Track list enumeration (kind, label, language, mode)
+- `addtrack` / `removetrack` / `change` events
+- `subtitlesShowing` state (via `track.mode === 'showing'`)
+- Track selection via mode setter
+
+**Accepted limitations:**
+- **Chapter cues** — The store reads `track.cues` on chapter tracks to populate `chaptersCues`. Since `cues` returns `null`, chapter cue data will not be available through the proxy. If avia exposes chapter data through a different mechanism, a separate integration path would be needed.
+- **Thumbnail cues** — Same as chapters: `thumbnailCues` will be empty, `thumbnailTrackSrc` will be `null` (no `<track>` elements to query).
+- **`<track>` element queries** — `findTrackElement` returns `null` since no native `<track>` elements exist. This is a no-op path and does not cause errors.
 
 ## Lifecycle
 
 ### Attach
 
-When `AviaMediaDelegateBase.attach()` is called and the avia engine is ready:
+The engine is created asynchronously in `#init`, not during `attach()`. Once `#init` resolves and the engine is ready:
 
 1. Call `AviaTextTrackList.connect(engine)`
 2. Subscribe to `texttrackschange`, `texttrackchange`, `texttrackenabledchange` on the engine using an `AbortController` signal

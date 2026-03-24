@@ -1,4 +1,4 @@
-import type { TextTrackInterface, VideoPlayerInterface } from '@cbsinteractive/avia-js';
+import { PlayerEvent, type TextTrackInterface, type VideoPlayerInterface } from '@cbsinteractive/avia-js';
 
 import { AviaTextTrack } from './text-track';
 
@@ -7,6 +7,7 @@ export class AviaTextTrackList extends EventTarget implements TextTrackList {
   #engine: VideoPlayerInterface | null = null;
   #syncing = false;
   #activeTrackId: string | null = null;
+  #disconnect: AbortController | null = null;
 
   // Legacy event handler properties
   onaddtrack: ((this: TextTrackList, ev: TrackEvent) => void) | null = null;
@@ -137,11 +138,66 @@ export class AviaTextTrackList extends EventTarget implements TextTrackList {
   connect(engine: VideoPlayerInterface): void {
     this.disconnect();
     this.#engine = engine;
-    // Event subscriptions added in Task 6
+    this.#disconnect = new AbortController();
+
+    const onTracksChange = (event: { detail: { textTracks: TextTrackInterface[] } }) => {
+      this.syncTracks(event.detail.textTracks, engine.textTrack, engine.textTrackEnabled);
+    };
+
+    const onTrackChange = (event: { detail: { textTrack: TextTrackInterface } }) => {
+      this.#syncing = true;
+      const activeId = event.detail.textTrack.id;
+      this.#activeTrackId = activeId;
+
+      for (const track of this.#tracks) {
+        track._setModeInternal(track.id === activeId ? 'showing' : 'disabled');
+      }
+
+      this.#syncing = false;
+      this.#dispatchChange();
+    };
+
+    const onEnabledChange = (event: { detail: { textTrackEnabled: boolean } }) => {
+      if (!event.detail.textTrackEnabled && this.#activeTrackId) {
+        this.#syncing = true;
+        const activeTrack = this.#tracks.find((t) => t.id === this.#activeTrackId);
+        activeTrack?._setModeInternal('disabled');
+        this.#activeTrackId = null;
+        this.#syncing = false;
+        this.#dispatchChange();
+      }
+    };
+
+    engine.on(PlayerEvent.TEXT_TRACKS_CHANGE, onTracksChange);
+    engine.on(PlayerEvent.TEXT_TRACK_CHANGE, onTrackChange);
+    engine.on(PlayerEvent.TEXT_TRACK_ENABLED_CHANGE, onEnabledChange);
+
+    // Cleanup via abort
+    this.#disconnect.signal.addEventListener('abort', () => {
+      engine.off(PlayerEvent.TEXT_TRACKS_CHANGE, onTracksChange);
+      engine.off(PlayerEvent.TEXT_TRACK_CHANGE, onTrackChange);
+      engine.off(PlayerEvent.TEXT_TRACK_ENABLED_CHANGE, onEnabledChange);
+    });
+
+    // Populate from current engine state
+    this.syncTracks(engine.textTracks, engine.textTrack, engine.textTrackEnabled);
   }
 
   /** Disconnect from the avia engine. */
   disconnect(): void {
+    this.#disconnect?.abort();
+    this.#disconnect = null;
+
+    // Remove all tracks
+    this.#syncing = true;
+    const tracks = [...this.#tracks];
+    this.#tracks.length = 0;
+
+    for (const track of tracks) {
+      this.#dispatchTrackEvent('removetrack', track);
+    }
+
+    this.#syncing = false;
     this.#engine = null;
     this.#activeTrackId = null;
   }

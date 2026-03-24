@@ -27,6 +27,23 @@ function createMockEngine(tracks: TextTrackInterface[] = []) {
   } as unknown as VideoPlayerInterface;
 }
 
+function connectWithTracks(aviaTracks: TextTrackInterface[]) {
+  // biome-ignore lint/complexity/noBannedTypes: test mock needs generic callback storage
+  const handlers = new Map<string, Function>();
+  const engine = {
+    ...createMockEngine(aviaTracks),
+    // biome-ignore lint/complexity/noBannedTypes: test mock needs generic callback type
+    on: vi.fn((type: string, handler: Function) => handlers.set(type, handler)),
+    off: vi.fn(),
+    textTracks: aviaTracks,
+  } as unknown as VideoPlayerInterface;
+
+  const list = new AviaTextTrackList();
+  list.connect(engine);
+
+  return { list, engine, fire: (type: string, detail: unknown) => handlers.get(type)?.({ detail }) };
+}
+
 describe('AviaTextTrackList', () => {
   describe('collection interface', () => {
     it('starts with length 0', () => {
@@ -183,7 +200,6 @@ describe('AviaTextTrackList', () => {
       const list = new AviaTextTrackList();
 
       list.connect(engine);
-      list.syncTracks([aviaTrack], null, false);
 
       list[0].mode = 'showing';
 
@@ -197,7 +213,6 @@ describe('AviaTextTrackList', () => {
       const list = new AviaTextTrackList();
 
       list.connect(engine);
-      list.syncTracks([aviaTrack], null, false);
 
       list[0].mode = 'hidden';
 
@@ -213,7 +228,6 @@ describe('AviaTextTrackList', () => {
 
       const list = new AviaTextTrackList();
       list.connect(engine);
-      list.syncTracks([aviaTrack], aviaTrack, true);
 
       list[0].mode = 'disabled';
 
@@ -224,10 +238,11 @@ describe('AviaTextTrackList', () => {
       const trackA = createMockAviaTrack({ id: 'a' });
       const trackB = createMockAviaTrack({ id: 'b', language: 'fr' });
       const engine = createMockEngine([trackA, trackB]);
+      engine.textTrack = trackA;
+      engine.textTrackEnabled = true;
 
       const list = new AviaTextTrackList();
       list.connect(engine);
-      list.syncTracks([trackA, trackB], trackA, true);
 
       expect(list[0].mode).toBe('showing');
       expect(list[1].mode).toBe('disabled');
@@ -248,6 +263,89 @@ describe('AviaTextTrackList', () => {
       list.connect(engine);
 
       list.syncTracks([aviaTrack], aviaTrack, true);
+
+      expect(engine.textTrack).toBeNull();
+    });
+  });
+
+  describe('inbound event handling', () => {
+    it('populates tracks on connect from engine.textTracks', () => {
+      const { list } = connectWithTracks([
+        createMockAviaTrack({ id: 'sub-en' }),
+        createMockAviaTrack({ id: 'sub-fr', language: 'fr' }),
+      ]);
+
+      expect(list.length).toBe(2);
+    });
+
+    it('handles texttrackschange — adds new tracks', () => {
+      const { list, fire } = connectWithTracks([createMockAviaTrack({ id: 'sub-en' })]);
+      expect(list.length).toBe(1);
+
+      const addHandler = vi.fn();
+      list.addEventListener('addtrack', addHandler);
+
+      fire('texttrackschange', {
+        textTracks: [createMockAviaTrack({ id: 'sub-en' }), createMockAviaTrack({ id: 'sub-fr', language: 'fr' })],
+      });
+
+      expect(list.length).toBe(2);
+      expect(addHandler).toHaveBeenCalledOnce();
+    });
+
+    it('handles texttrackschange — removes stale tracks', () => {
+      const { list, fire } = connectWithTracks([
+        createMockAviaTrack({ id: 'sub-en' }),
+        createMockAviaTrack({ id: 'sub-fr', language: 'fr' }),
+      ]);
+
+      const removeHandler = vi.fn();
+      list.addEventListener('removetrack', removeHandler);
+
+      fire('texttrackschange', {
+        textTracks: [createMockAviaTrack({ id: 'sub-en' })],
+      });
+
+      expect(list.length).toBe(1);
+      expect(removeHandler).toHaveBeenCalledOnce();
+    });
+
+    it('handles texttrackchange — sets active track to showing', () => {
+      const trackA = createMockAviaTrack({ id: 'a' });
+      const trackB = createMockAviaTrack({ id: 'b', language: 'fr' });
+      const { list, fire } = connectWithTracks([trackA, trackB]);
+
+      const changeHandler = vi.fn();
+      list.addEventListener('change', changeHandler);
+
+      fire('texttrackchange', { textTrack: trackB });
+
+      expect(list[0].mode).toBe('disabled');
+      expect(list[1].mode).toBe('showing');
+      expect(changeHandler).toHaveBeenCalled();
+    });
+
+    it('handles texttrackenabledchange — disables active track when enabled=false', () => {
+      const track = createMockAviaTrack({ id: 'sub-en' });
+      const { list, fire } = connectWithTracks([track]);
+
+      fire('texttrackchange', { textTrack: track });
+      expect(list[0].mode).toBe('showing');
+
+      const changeHandler = vi.fn();
+      list.addEventListener('change', changeHandler);
+
+      fire('texttrackenabledchange', { textTrackEnabled: false });
+
+      expect(list[0].mode).toBe('disabled');
+      expect(changeHandler).toHaveBeenCalled();
+    });
+
+    it('does not fire outbound sync during inbound event handling', () => {
+      const track = createMockAviaTrack({ id: 'sub-en' });
+      const { engine, fire } = connectWithTracks([track]);
+
+      fire('texttrackchange', { textTrack: track });
 
       expect(engine.textTrack).toBeNull();
     });

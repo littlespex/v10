@@ -1,6 +1,6 @@
 import type { TextTrackInterface } from '@cbsinteractive/avia-js';
 import { TextTrackKind as AviaTextTrackKind } from '@cbsinteractive/avia-js';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AviaTextTrack } from '../text-track';
 import type { AviaTextTrackList } from '../text-track-list';
 
@@ -90,6 +90,42 @@ describe('AviaTextTrack', () => {
         track.addEventListener('cuechange', handler);
         track.removeEventListener('cuechange', handler);
       }).not.toThrow();
+    });
+  });
+
+  describe('mode setter', () => {
+    it('notifies list on mode change', () => {
+      const list = createMockList();
+      const spy = vi.fn();
+      list.handleModeChange = spy;
+
+      const track = new AviaTextTrack(createMockAviaTrack(), list);
+      track.mode = 'showing';
+
+      expect(spy).toHaveBeenCalledWith(track, 'showing');
+    });
+
+    it('does not notify list when mode is unchanged', () => {
+      const list = createMockList();
+      const spy = vi.fn();
+      list.handleModeChange = spy;
+
+      const track = new AviaTextTrack(createMockAviaTrack(), list);
+      track.mode = 'disabled';
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('_setModeInternal updates mode without notifying list', () => {
+      const list = createMockList();
+      const spy = vi.fn();
+      list.handleModeChange = spy;
+
+      const track = new AviaTextTrack(createMockAviaTrack(), list);
+      track._setModeInternal('showing');
+
+      expect(track.mode).toBe('showing');
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });

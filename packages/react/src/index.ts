@@ -61,6 +61,10 @@ export { Tooltip, type TooltipContextValue, useTooltipContext } from './ui/toolt
 export { VolumeSlider } from './ui/volume-slider';
 
 // Utilities
+export { attachMediaElement } from './utils/attach-media-element';
+export { mediaProps } from './utils/media-props';
 export { mergeProps } from './utils/merge-props';
 export type { HTMLProps, RenderFunction, RenderProp, UIComponentProps } from './utils/types';
+export { composeRefs, useComposedRefs } from './utils/use-composed-refs';
+export { useDestroy } from './utils/use-destroy';
 export { renderElement } from './utils/use-render';

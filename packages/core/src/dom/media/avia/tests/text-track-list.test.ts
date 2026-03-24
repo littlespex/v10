@@ -268,6 +268,41 @@ describe('AviaTextTrackList', () => {
     });
   });
 
+  describe('disconnect', () => {
+    it('removes all tracks and fires removetrack for each', () => {
+      const { list, engine } = connectWithTracks([
+        createMockAviaTrack({ id: 'a' }),
+        createMockAviaTrack({ id: 'b', language: 'fr' }),
+      ]);
+
+      const handler = vi.fn();
+      list.addEventListener('removetrack', handler);
+
+      list.disconnect();
+
+      expect(list.length).toBe(0);
+      expect(handler).toHaveBeenCalledTimes(2);
+    });
+
+    it('unsubscribes from engine events', () => {
+      const { list, engine } = connectWithTracks([createMockAviaTrack({ id: 'a' })]);
+
+      list.disconnect();
+
+      expect(engine.off).toHaveBeenCalledTimes(3);
+    });
+
+    it('clears engine reference — mode changes become local-only', () => {
+      const { list } = connectWithTracks([createMockAviaTrack({ id: 'a' })]);
+      list.disconnect();
+
+      list.syncTracks([createMockAviaTrack({ id: 'b' })], null, false);
+      expect(() => {
+        list[0].mode = 'showing';
+      }).not.toThrow();
+    });
+  });
+
   describe('inbound event handling', () => {
     it('populates tracks on connect from engine.textTracks', () => {
       const { list } = connectWithTracks([

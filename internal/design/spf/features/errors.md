@@ -372,10 +372,11 @@ limitations_).
 
 - **Unit tests:**
   - `packages/spf/src/media/tests/errors.test.ts` → `svtaCategory` /
-    `svtaIndex` — identity with CML's helpers, and decomposition of the
-    4-digit native and 5-digit external forms, including the 0999
-    fully-unknown code; `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` — stays in
-    the publisher range above CML's `SVTA_CUSTOM_UNKNOWN`
+    `svtaIndex` — decomposition of the 4-digit native and 5-digit
+    external forms, including the 0999 fully-unknown code, and the
+    `undefined` CML answers for inputs the spec doesn't assign;
+    `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` — stays in the publisher range
+    above 99000
   - `packages/spf/src/playback/behaviors/tests/collect-errors.test.ts` →
     `emitError` — append order across reporters, duplicates kept (a
     repeat is a real observation), array replaced rather than mutated so

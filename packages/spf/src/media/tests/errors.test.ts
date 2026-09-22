@@ -1,9 +1,3 @@
-import {
-  getSvtaErrorCategory,
-  getSvtaErrorIndex,
-  SVTA_CUSTOM_UNKNOWN,
-  SVTA_ERROR_CATEGORY_CUSTOM,
-} from '@svta/cml-error-codes';
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
@@ -16,20 +10,16 @@ import {
 
 describe('SVTA_UNSUPPORTED_PLAYBACK_FEATURE', () => {
   it('sits in the publisher-defined range of the custom category', () => {
-    // CML defines only 99000 in the custom category and leaves 99001–99999 to
-    // publishers, so the one code SPF owns must stay above the former and
-    // within the latter.
-    expect(SVTA_UNSUPPORTED_PLAYBACK_FEATURE).toBeGreaterThan(SVTA_CUSTOM_UNKNOWN);
+    // The spec defines only 99000 (Unknown) in the custom category and leaves
+    // 99001–99999 to publishers, so the one code SPF owns must stay above the
+    // former and within the latter.
+    expect(SVTA_UNSUPPORTED_PLAYBACK_FEATURE).toBeGreaterThan(99000);
     expect(SVTA_UNSUPPORTED_PLAYBACK_FEATURE).toBeLessThanOrEqual(99999);
-    expect(getSvtaErrorCategory(SVTA_UNSUPPORTED_PLAYBACK_FEATURE)).toBe(SVTA_ERROR_CATEGORY_CUSTOM);
+    expect(svtaCategory(SVTA_UNSUPPORTED_PLAYBACK_FEATURE)).toBe(99);
   });
 });
 
 describe('svtaCategory', () => {
-  it("is an alias of CML's getSvtaErrorCategory", () => {
-    expect(svtaCategory).toBe(getSvtaErrorCategory);
-  });
-
   it('reads the category from a four-digit native code', () => {
     expect(svtaCategory(SVTA_NO_SUPPORTED_VIDEO_TRACK)).toBe(2);
     expect(svtaCategory(SVTA_NO_SUPPORTED_AUDIO_TRACK)).toBe(2);
@@ -53,13 +43,17 @@ describe('svtaCategory', () => {
   it('reports category 0 for the fully-unknown code', () => {
     expect(svtaCategory(999)).toBe(0);
   });
+
+  it('answers undefined where the spec assigns no category', () => {
+    // CML's semantics, where the arithmetic this alias replaced returned a raw
+    // number: a reserved category (8–98), a negative, or a non-integer.
+    expect(svtaCategory(8000)).toBeUndefined();
+    expect(svtaCategory(-1)).toBeUndefined();
+    expect(svtaCategory(2011.5)).toBeUndefined();
+  });
 });
 
 describe('svtaIndex', () => {
-  it("is an alias of CML's getSvtaErrorIndex", () => {
-    expect(svtaIndex).toBe(getSvtaErrorIndex);
-  });
-
   it('reads the index from a four-digit native code', () => {
     expect(svtaIndex(SVTA_NO_SUPPORTED_VIDEO_TRACK)).toBe(11);
     expect(svtaIndex(SVTA_NO_SUPPORTED_AUDIO_TRACK)).toBe(12);
@@ -76,5 +70,10 @@ describe('svtaIndex', () => {
 
   it('reads 999 for the fully-unknown code', () => {
     expect(svtaIndex(999)).toBe(999);
+  });
+
+  it('answers undefined for anything but a non-negative integer', () => {
+    expect(svtaIndex(-1)).toBeUndefined();
+    expect(svtaIndex(2011.5)).toBeUndefined();
   });
 });

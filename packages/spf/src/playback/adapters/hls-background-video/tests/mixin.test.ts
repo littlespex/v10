@@ -8,14 +8,14 @@
  *
  * `<mux-background-video>` in html and react is an alias of these same classes, so this file carries the behavior.
  */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+
 import {
   SVTA_NO_SUPPORTED_VIDEO_TRACK,
   SVTA_UNSUPPORTED_DRM_SYSTEM,
+  SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
   SVTA_UNSUPPORTED_VIDEO_FORMAT,
-} from '@svta/cml-error-codes';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-
-import { SVTA_UNSUPPORTED_PLAYBACK_FEATURE } from '../../../../media/errors';
+} from '../../../../media/errors';
 import type { MaybeResolvedPresentation } from '../../../../media/types';
 import { UNPLAYABLE_SOURCE_MESSAGE } from '../../../primitives/error-messages';
 import { HlsBackgroundVideoAdapterCore, HlsBackgroundVideoMixin } from '../mixin';

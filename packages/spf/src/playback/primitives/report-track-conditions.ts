@@ -16,9 +16,8 @@ import {
   SVTA_UNSUPPORTED_AUDIO_FORMAT,
   SVTA_UNSUPPORTED_DRM_SYSTEM,
   SVTA_UNSUPPORTED_VIDEO_FORMAT,
-} from '@svta/cml-error-codes';
-
-import type { SvtaError } from '../../media/errors';
+  type SvtaError,
+} from '../../media/errors';
 import { NON_FMP4_CONTAINER_MIMES } from '../../media/hls/parse-media-playlist';
 import { getMediaPlaylistMetadata, type ResolvedTrack, type TrackType } from '../../media/types';
 

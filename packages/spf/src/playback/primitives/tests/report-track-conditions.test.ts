@@ -1,10 +1,10 @@
+import { describe, expect, it } from 'vite-plus/test';
+
 import {
   SVTA_UNSUPPORTED_AUDIO_FORMAT,
   SVTA_UNSUPPORTED_DRM_SYSTEM,
   SVTA_UNSUPPORTED_VIDEO_FORMAT,
-} from '@svta/cml-error-codes';
-import { describe, expect, it } from 'vite-plus/test';
-
+} from '../../../media/errors';
 import { MEDIA_PLAYLIST_METADATA_KEY, type ResolvedTrack, type TrackType } from '../../../media/types';
 import { reportUnsupportedTrackConditions } from '../report-track-conditions';
 

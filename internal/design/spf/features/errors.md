@@ -218,11 +218,12 @@ producers, not this feature):**
 ## Implementation surface
 
 **Vocabulary** — the standard codes are `@svta/cml-error-codes`
-exports, imported at each producer and adapter
+exports, re-exported through `packages/spf/src/media/errors.ts` so
+that module is the only place SPF imports CML
 (`SVTA_UNSUPPORTED_VIDEO_FORMAT` 1004, `SVTA_UNSUPPORTED_AUDIO_FORMAT`
 1005, `SVTA_NO_SUPPORTED_VIDEO_TRACK` 2011,
 `SVTA_NO_SUPPORTED_AUDIO_TRACK` 2012, `SVTA_UNSUPPORTED_DRM_SYSTEM`
-4008). `packages/spf/src/media/errors.ts` holds what CML doesn't ship:
+4008). The same module holds what CML doesn't ship:
 `SvtaError` (`{ code, message?, data? }`), the publisher-defined
 `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` 99001, and `svtaCategory` /
 `svtaIndex`, aliases of CML's `getSvtaErrorCategory` /

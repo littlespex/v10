@@ -1,13 +1,14 @@
-import {
-  SVTA_NO_SUPPORTED_VIDEO_TRACK,
-  SVTA_UNSUPPORTED_DRM_SYSTEM,
-  SVTA_UNSUPPORTED_VIDEO_FORMAT,
-} from '@svta/cml-error-codes';
 import type { Constructor, MixinReturn } from '@videojs/utils/types';
 
 import type { Composition } from '../../../core/composition/create-composition';
 import { effect } from '../../../core/signals/effect';
-import { SVTA_UNSUPPORTED_PLAYBACK_FEATURE, type SvtaError } from '../../../media/errors';
+import {
+  SVTA_NO_SUPPORTED_VIDEO_TRACK,
+  SVTA_UNSUPPORTED_DRM_SYSTEM,
+  SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
+  SVTA_UNSUPPORTED_VIDEO_FORMAT,
+  type SvtaError,
+} from '../../../media/errors';
 import {
   type BackgroundVideoEngineConfig,
   type BackgroundVideoEngineContext,

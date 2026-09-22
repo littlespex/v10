@@ -1,11 +1,11 @@
 /**
- * SPF's slice of the SVTA 2070 (Standardized Error Codes) vocabulary: the shape of a reported condition, plus the one
- * code the spec leaves to the publisher.
+ * SPF's slice of the SVTA 2070 (Standardized Error Codes) vocabulary: the shape of a reported condition, the standard
+ * codes SPF reports, and the one code the spec leaves to the publisher.
  *
- * The standard codes come from `@svta/cml-error-codes`, the spec's reference implementation. Producers and adapters
- * import them from there (`SVTA_UNSUPPORTED_VIDEO_FORMAT`, `SVTA_NO_SUPPORTED_AUDIO_TRACK`, …), so no code is
- * transcribed from the spec PDF here and a spec revision arrives as a dependency bump rather than an edit. What stays
- * in this module is what CML deliberately doesn't ship: the reporting envelope ({@link SvtaError}) and a
+ * The standard codes come from `@svta/cml-error-codes`, the spec's reference implementation, and are re-exported here
+ * so this module is the only place SPF imports CML. Producers and adapters keep importing the vocabulary from here, no
+ * code is transcribed from the spec PDF, and a spec revision arrives as a dependency bump rather than an edit. What
+ * this module defines itself is what CML deliberately doesn't ship: the reporting envelope ({@link SvtaError}) and a
  * publisher-defined code ({@link SVTA_UNSUPPORTED_PLAYBACK_FEATURE}).
  *
  * Two properties of the spec shape the types here:
@@ -19,6 +19,26 @@
  * See `internal/design/spf/features/errors.md`.
  */
 import { getSvtaErrorCategory, getSvtaErrorIndex } from '@svta/cml-error-codes';
+
+/**
+ * The standard codes SPF reports, one re-export per code rather than `export *` so this list stays the inventory of
+ * what the engine can say. A new producer adds its code here.
+ *
+ * - `SVTA_UNSUPPORTED_VIDEO_FORMAT` (1004) / `SVTA_UNSUPPORTED_AUDIO_FORMAT` (1005) — a rendition in a container this
+ *   engine can't append, reported per rendition as a _cause_.
+ * - `SVTA_UNSUPPORTED_DRM_SYSTEM` (4008) — an encrypted rendition with no decryption pipeline. Detection, not a license
+ *   failure; also a cause.
+ * - `SVTA_NO_SUPPORTED_VIDEO_TRACK` (2011) / `SVTA_NO_SUPPORTED_AUDIO_TRACK` (2012) — the _verdict_: a type has nothing
+ *   playable, whether every rendition was excluded or the source carried none and the composition said it needs the
+ *   type. One code for both, because they are the same answer to a viewer.
+ */
+export {
+  SVTA_NO_SUPPORTED_AUDIO_TRACK,
+  SVTA_NO_SUPPORTED_VIDEO_TRACK,
+  SVTA_UNSUPPORTED_AUDIO_FORMAT,
+  SVTA_UNSUPPORTED_DRM_SYSTEM,
+  SVTA_UNSUPPORTED_VIDEO_FORMAT,
+} from '@svta/cml-error-codes';
 
 /**
  * A reported condition, identified by its SVTA code.

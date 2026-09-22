@@ -11,14 +11,14 @@
  *
  * See `internal/design/spf/features/errors.md` for the causes-vs-verdicts split this rests on.
  */
+import type { ErrorLike } from '@videojs/media';
+
 import {
   SVTA_UNSUPPORTED_AUDIO_FORMAT,
   SVTA_UNSUPPORTED_DRM_SYSTEM,
   SVTA_UNSUPPORTED_VIDEO_FORMAT,
-} from '@svta/cml-error-codes';
-import type { ErrorLike } from '@videojs/media';
-
-import type { SvtaError } from '../../../media/errors';
+  type SvtaError,
+} from '../../../media/errors';
 
 /**
  * The error shape a media surface exposes: `@videojs/media`'s {@link ErrorLike} plus the reporter context the engine

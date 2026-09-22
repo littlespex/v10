@@ -3,12 +3,16 @@ import {
   getSvtaErrorIndex,
   SVTA_CUSTOM_UNKNOWN,
   SVTA_ERROR_CATEGORY_CUSTOM,
-  SVTA_NO_SUPPORTED_AUDIO_TRACK,
-  SVTA_NO_SUPPORTED_VIDEO_TRACK,
 } from '@svta/cml-error-codes';
 import { describe, expect, it } from 'vite-plus/test';
 
-import { SVTA_UNSUPPORTED_PLAYBACK_FEATURE, svtaCategory, svtaIndex } from '../errors';
+import {
+  SVTA_NO_SUPPORTED_AUDIO_TRACK,
+  SVTA_NO_SUPPORTED_VIDEO_TRACK,
+  SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
+  svtaCategory,
+  svtaIndex,
+} from '../errors';
 
 describe('SVTA_UNSUPPORTED_PLAYBACK_FEATURE', () => {
   it('sits in the publisher-defined range of the custom category', () => {

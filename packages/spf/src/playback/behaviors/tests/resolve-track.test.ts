@@ -1,10 +1,9 @@
-import { SVTA_UNSUPPORTED_DRM_SYSTEM } from '@svta/cml-error-codes';
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { StateSignals } from '../../../core/composition/create-composition';
 import { signal } from '../../../core/signals/primitives';
 import type { TaskLike } from '../../../core/tasks/task';
-import { type SvtaError } from '../../../media/errors';
+import { SVTA_UNSUPPORTED_DRM_SYSTEM, type SvtaError } from '../../../media/errors';
 import type {
   MaybeResolvedPresentation,
   PartiallyResolvedAudioTrack,

@@ -1,12 +1,9 @@
+import { SVTA_NO_SUPPORTED_AUDIO_TRACK } from '@svta/cml-error-codes';
 import type { Constructor, MixinReturn } from '@videojs/utils/types';
 
 import type { Composition } from '../../../core/composition/create-composition';
 import { effect } from '../../../core/signals/effect';
-import {
-  SVTA_NO_SUPPORTED_AUDIO_TRACK,
-  SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
-  type SvtaError,
-} from '../../../media/errors';
+import { SVTA_UNSUPPORTED_PLAYBACK_FEATURE, type SvtaError } from '../../../media/errors';
 import {
   createHlsAudioEngine,
   type HlsAudioEngineConfig,

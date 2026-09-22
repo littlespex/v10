@@ -1,8 +1,9 @@
+import { SVTA_NO_SUPPORTED_AUDIO_TRACK, SVTA_NO_SUPPORTED_VIDEO_TRACK } from '@svta/cml-error-codes';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { StateSignals } from '../../../core/composition/create-composition';
 import { signal } from '../../../core/signals/primitives';
-import { SVTA_NO_SUPPORTED_AUDIO_TRACK, SVTA_NO_SUPPORTED_VIDEO_TRACK, type SvtaError } from '../../../media/errors';
+import { type SvtaError } from '../../../media/errors';
 import type {
   AudioSelectionSet,
   AudioTrack,

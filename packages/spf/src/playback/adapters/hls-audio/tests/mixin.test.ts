@@ -4,15 +4,15 @@
  * Covers the HTMLMediaElement-compatible contract for src and play(), per the WHATWG HTML spec, for the audio-only HLS
  * variant. Parallels adapter.test.ts — semantics match (the variant differs in composition, not in adapter contract).
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-
 import {
   SVTA_NO_SUPPORTED_AUDIO_TRACK,
   SVTA_NO_SUPPORTED_VIDEO_TRACK,
   SVTA_UNSUPPORTED_AUDIO_FORMAT,
   SVTA_UNSUPPORTED_DRM_SYSTEM,
-  SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
-} from '../../../../media/errors';
+} from '@svta/cml-error-codes';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+
+import { SVTA_UNSUPPORTED_PLAYBACK_FEATURE } from '../../../../media/errors';
 import { UNSUPPORTED_PLAYBACK_FEATURE_MESSAGE } from '../../../primitives/error-messages';
 import { HlsAudioAdapterCore, HlsAudioMixin } from '../mixin';
 

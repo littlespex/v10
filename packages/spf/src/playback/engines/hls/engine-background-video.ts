@@ -1,3 +1,5 @@
+import { SVTA_NO_SUPPORTED_VIDEO_TRACK } from '@svta/cml-error-codes';
+
 import {
   type Composition,
   type ContextSignals,
@@ -7,7 +9,7 @@ import {
 import { makeShareSignals, type ShareSignalsConfig } from '../../../core/composition/share-signals';
 import { canPlayTrack } from '../../../media/dom/capabilities';
 import type { ScreenResolution } from '../../../media/dom/screen';
-import { SVTA_NO_SUPPORTED_VIDEO_TRACK, type SvtaError } from '../../../media/errors';
+import type { SvtaError } from '../../../media/errors';
 import { parseMultivariantPlaylist } from '../../../media/hls/parse-multivariant';
 import type { CanPlayTrack, MaybeResolvedPresentation } from '../../../media/types';
 import { getResolvedSelectedTrackDuration } from '../../../media/utils/track-selection';

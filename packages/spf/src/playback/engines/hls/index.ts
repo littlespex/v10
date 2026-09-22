@@ -1,5 +1,7 @@
-// SVTA 2070 error vocabulary — the codes reported on `state.errors` and
-// surfaced through the adapter's `error`.
+// SVTA 2070 error vocabulary — the envelope reported on `state.errors` and
+// surfaced through the adapter's `error`, plus the one code SPF defines. The
+// standard codes are `@svta/cml-error-codes` exports; `svtaCategory` /
+// `svtaIndex` alias its arithmetic helpers.
 export type { SvtaError } from '../../../media/errors';
 export { SVTA_UNSUPPORTED_PLAYBACK_FEATURE, svtaCategory, svtaIndex } from '../../../media/errors';
 // HLS media-playlist metadata, including `playlistType` ('VOD' | 'EVENT'). Lets

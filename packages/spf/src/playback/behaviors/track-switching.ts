@@ -55,11 +55,12 @@
  * empty-slot picker, dropped in the move to the rule chain).
  */
 
+import { SVTA_NO_SUPPORTED_AUDIO_TRACK, SVTA_NO_SUPPORTED_VIDEO_TRACK } from '@svta/cml-error-codes';
+
 import { type AnySlotMap, defineBehavior } from '../../core/composition/create-composition';
 import { createMachineReactor } from '../../core/reactors/create-machine-reactor';
 import { computed, peek, type ReadonlySignal, type Signal } from '../../core/signals/primitives';
 import { DEFAULT_QUALITY_CONFIG, type QualityConfig, resolutionArea } from '../../media/abr/quality-selection';
-import { SVTA_NO_SUPPORTED_AUDIO_TRACK, SVTA_NO_SUPPORTED_VIDEO_TRACK } from '../../media/errors';
 import type { Resolution } from '../../media/primitives/resolution';
 import {
   matchesPartialTrack,

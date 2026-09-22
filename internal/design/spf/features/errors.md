@@ -223,14 +223,29 @@ that module is the only place SPF imports CML
 (`SVTA_UNSUPPORTED_VIDEO_FORMAT` 1004, `SVTA_UNSUPPORTED_AUDIO_FORMAT`
 1005, `SVTA_NO_SUPPORTED_VIDEO_TRACK` 2011,
 `SVTA_NO_SUPPORTED_AUDIO_TRACK` 2012, `SVTA_UNSUPPORTED_DRM_SYSTEM`
-4008). The same module holds what CML doesn't ship:
-`SvtaError` (`{ code, message?, data? }`), the publisher-defined
-`SVTA_UNSUPPORTED_PLAYBACK_FEATURE` 99001, and `svtaCategory` /
+4008, and the content-protection codes the DRM feature reports: 4003,
+4004, 4007, 4010, 4013, 4014, 4016, 4021). The same module holds what
+CML doesn't ship: `SvtaError` (`{ code, message?, data? }`), the
+publisher-defined `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` 99001 and
+`SVTA_UNSUPPORTED_ENCRYPTION_METHOD` 99408, and `svtaCategory` /
 `svtaIndex`, aliases of CML's `getSvtaErrorCategory` /
 `getSvtaErrorIndex` kept so the `@videojs/spf/hls` surface stays
 stable. Signal-free and DOM-free, so usable from any layer.
 `@svta/cml-utils` is declared alongside because CML imports a type from
 it; nothing of it reaches the runtime output.
+
+**Custom-code convention (`99CII`)** — SVTA 2070 leaves the whole `99xxx`
+category to the publisher (defining only `99000`). Custom codes mirror the
+standard taxonomy in their index digits: `99` + `C` (the standard category
+paralleled) + `II` (the index within it). So a content-protection (category 4)
+custom cause is `994II`, and `99408` deliberately echoes standard `4008` as its
+non-DRM sibling — the cause reported when a source is `identity`-keyformat
+(clear-key AES) encrypted, which is content protection this engine has no
+decryptor for but is not a DRM key system (see
+[clear-key-aes](./clear-key-aes.md)). It joins `UNSUPPORTED_FEATURE_CAUSES`, so
+the adapter still surfaces `99001`. General, cross-category custom codes (the
+`99001` surface itself) stay in `990XX`; `svtaCategory` / `svtaIndex` decompose
+either by arithmetic alone.
 
 **Behaviors:**
 

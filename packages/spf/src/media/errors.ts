@@ -83,13 +83,7 @@ export {
  * at which severity and user-facing text get decided.
  */
 export interface SvtaError {
-  /**
-   * The SVTA code — see {@link svtaCategory} / {@link svtaIndex}.
-   *
-   * `number` rather than CML's `SvtaErrorCode` union: that union names only the enumerated codes, and spec-valid codes
-   * exist outside it — publisher-defined ones like {@link SVTA_UNSUPPORTED_PLAYBACK_FEATURE}, and embedded HTTP
-   * statuses the catalog doesn't enumerate.
-   */
+  /** The SVTA code — see {@link svtaCategory} / {@link svtaIndex}. */
   code: number;
   /** Engineer-facing detail. Optional; the code is the identity. */
   message?: string;

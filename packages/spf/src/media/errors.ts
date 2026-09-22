@@ -139,9 +139,9 @@ export const SVTA_UNSUPPORTED_ENCRYPTION_METHOD = 99408;
  * uniformly across the four-digit native form and the five-digit form embedding an external standard: `"03404"` is
  * numerically 3404, which decomposes identically.
  *
- * An alias of CML's {@link getSvtaErrorCategory}, kept so the `@videojs/spf/hls` entry's surface stays stable. Unlike
- * the bare arithmetic it replaced, it answers `undefined` for a code the spec assigns no category to: a non-integer, a
- * negative, or one in the reserved `8`–`98` range.
+ * An alias of CML's {@link getSvtaErrorCategory}, kept so the `@videojs/spf/hls` entry's surface stays stable. Answers
+ * `undefined` for a code the spec assigns no category to: a non-integer, a negative, or one in the reserved `8`–`98`
+ * range.
  */
 export const svtaCategory = getSvtaErrorCategory;
 

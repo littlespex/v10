@@ -47,8 +47,8 @@ describe('svtaCategory', () => {
   });
 
   it('answers undefined where the spec assigns no category', () => {
-    // CML's semantics, where the arithmetic this alias replaced returned a raw
-    // number: a reserved category (8–98), a negative, or a non-integer.
+    // The spec assigns no category to a reserved value (8–98), a negative, or a
+    // non-integer, so the answer is `undefined` rather than a number.
     expect(svtaCategory(8000)).toBeUndefined();
     expect(svtaCategory(-1)).toBeUndefined();
     expect(svtaCategory(2011.5)).toBeUndefined();

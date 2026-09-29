@@ -11,11 +11,17 @@ A poster is the image shown before your video plays. There are several places to
 1. **Let the media provide it.** Some media components create a poster from the source, so there is nothing extra to host or keep in sync.
 2. **Set `poster` on the player.** With a packaged skin, that is all a static image needs.
 3. **Take control of the image** when you need a framework image component, a `<picture>` element, or a loading placeholder. The skin renders your image instead of its own.
-4. **Keep it working in an <DocsLink slug="guides/customize-skins" anchor="eject-and-edit-a-skin">ejected skin</DocsLink>.** The player's `poster` still reaches the Poster component your skin renders, or you can set the image's source yourself.
+4. **Keep it working after <DocsLink slug="guides/customize-skins" anchor="style-skin-source">adding the skin source to your project</DocsLink>.** The player's `poster` still reaches the Poster component your skin renders, or you can set the image's source yourself.
 
 ## Let the media provide a poster
 
+<FrameworkCase frameworks={["react"]}>
 Some media components choose a poster for you. For example, `MuxVideo` creates one from its playback ID:
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+Some media components choose a poster for you. For example, `<mux-video>` creates one from its playback ID:
+</FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
 
@@ -111,7 +117,13 @@ export function MyPlayer() {
 
 </FrameworkCase>
 
+<FrameworkCase frameworks={["react"]}>
 If you use a ready-made skin, it includes <DocsLink slug="reference/components/poster">Poster</DocsLink> and shows the image automatically. If you build your own UI, add Poster yourself. It hides after the user plays or seeks.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+If you use a ready-made skin, it includes <DocsLink slug="reference/components/poster">`<media-poster>`</DocsLink> and shows the image automatically. If you build your own UI, add `<media-poster>` yourself. It hides after the user plays or seeks.
+</FrameworkCase>
 
 When the player and the media component both choose a poster, the player's `poster` wins. See <DocsLink slug="reference/api/feature-metadata">Metadata</DocsLink> for how the player combines those values.
 
@@ -261,9 +273,15 @@ Add an image to the skin's `poster` slot with the placeholder as its background.
 
 The examples use `contain` for both images. Use `cover` for both when the poster should fill the player. Keeping the same size and position prevents the image from jumping when the poster appears.
 
-## Set the poster in an ejected skin
+## Set the poster after adding skin source
 
-Ejecting a skin changes nothing about the first two approaches: the player's `poster`, or the poster the media provides, still reaches the <DocsLink slug="reference/components/poster">Poster</DocsLink> component your skin renders.
+<FrameworkCase frameworks={["react"]}>
+Adding the skin source to your project changes nothing about the first two approaches: the player's `poster`, or the poster the media provides, still reaches the <DocsLink slug="reference/components/poster">Poster</DocsLink> component your skin renders.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+Adding the skin source to your project changes nothing about the first two approaches: the player's `poster`, or the poster the media provides, still reaches the <DocsLink slug="reference/components/poster">`<media-poster>`</DocsLink> element your skin renders.
+</FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
 

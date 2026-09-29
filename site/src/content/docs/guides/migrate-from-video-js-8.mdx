@@ -15,7 +15,7 @@ Video.js v10 is a rebuild, not a drop-in version bump. There is no `videojs()` c
 This isn't a version bump you can do with a find-and-replace. Plan it as a rewrite of your player setup, and read this guide before you estimate it.
 </Aside>
 
-Video.js 8 lives on at its [repo](https://github.com/videojs/video.js) and [docs](https://legacy.videojs.org).
+Video.js 8 lives on at its [repo](https://github.com/videojs/video.js) and [docs](https://legacy.videojs.org). The `video.js` package on npm is still Video.js 8, so `npm install video.js` won't get you v10. Video.js 10 ships as scoped `@videojs/*` packages.
 
 ## Three pieces instead of one
 
@@ -202,11 +202,21 @@ Port these across untouched. They're native attributes and always were.
 
 ### Player metadata
 
+<FrameworkCase frameworks={["react"]}>
 | Video.js 8 | Video.js v10 |
 |---|---|
-| `poster` | `poster` on `<video-player>` or `VideoPlayer` |
+| `poster` | `poster` on `VideoPlayer` |
 | `posterImage: false` | leave the player's poster unset |
-| the title in `TitleBar` | `content-title` on `<video-player>` or `title` on `VideoPlayer`, rendered with the Title component |
+| the title in `TitleBar` | `title` on `VideoPlayer`, rendered with the Title component |
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+| Video.js 8 | Video.js v10 |
+|---|---|
+| `poster` | `poster` on `<video-player>` |
+| `posterImage: false` | leave the player's poster unset |
+| the title in `TitleBar` | `content-title` on `<video-player>`, rendered with the `<media-title>` element |
+</FrameworkCase>
 
 The poster belongs to player state rather than the media, which lets the skin control how it appears:
 
@@ -230,7 +240,13 @@ The poster belongs to player state rather than the media, which lets the skin co
 ```
 </FrameworkCase>
 
-The packaged skins do not place the title in their default layouts. Add the <DocsLink slug="reference/components/title">Title</DocsLink> component as a child of the skin, or place it in an ejected or custom layout. For poster rendering options — including placeholders and custom image elements — see <DocsLink slug="guides/poster">Add a poster and loading placeholder</DocsLink> and the <DocsLink slug="reference/components/poster">Poster</DocsLink> reference.
+<FrameworkCase frameworks={["react"]}>
+The packaged video and live-video skins already include the <DocsLink slug="reference/components/title">Title</DocsLink> component, so setting `title` on the player displays it. Audio skins do not include a title. Add `Title` where you want it in a custom layout or skin source you added to your project. For poster rendering options — including placeholders and custom image elements — see <DocsLink slug="guides/poster">Add a poster and loading placeholder</DocsLink> and the <DocsLink slug="reference/components/poster">Poster</DocsLink> reference.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+The packaged video and live-video skins already include the <DocsLink slug="reference/components/title">`<media-title>`</DocsLink> element, so setting `content-title` on the player displays it. Audio skins do not include a title. Add `<media-title>` where you want it in a custom layout or skin source you added to your project. For poster rendering options — including placeholders and custom image elements — see <DocsLink slug="guides/poster">Add a poster and loading placeholder</DocsLink> and the <DocsLink slug="reference/components/poster">`<media-poster>`</DocsLink> reference.
+</FrameworkCase>
 
 ### Your CSS
 
@@ -263,7 +279,7 @@ These are the ones that need a decision rather than a rename, so each has a sect
 | `spatialNavigation` | no equivalent; see [Known gaps](#known-gaps) |
 | `inactivityTimeout` | delay not configurable yet ([#1728](https://github.com/videojs/v10/issues/1728)); `inactivityTimeout: 0` maps to `visibility="always"` on the controls component |
 | `errorDisplay`, `notSupportedMessage` | the skins include an error dialog |
-| `ModalDialog` | compose a <DocsLink slug="reference/components/dialog">Dialog</DocsLink>; your application controls media playback when it opens and closes |
+| `ModalDialog` | compose a <DocsLink slug="reference/components/dialog">dialog</DocsLink>; your application controls media playback when it opens and closes |
 
 ## Techs become media components
 
@@ -283,9 +299,10 @@ v10 replaces the whole mechanism with a choice you make in markup. You pick the 
 
 Each needs its own import.
 
-Package-manager installations also need the matching adapter. The default HLS component shown below uses
-`@videojs/spf`; HlsJsVideo and the default Mux components use `@videojs/hls.js`; DASH uses `@videojs/dash.js`; Vimeo
-uses `@videojs/vimeo`; and Shaka and Wistia use `@videojs/shaka` and `@videojs/wistia`.
+Package-manager installations also need the matching media package. The lightweight HLS component shown below uses
+`@videojs/spf`; the hls.js component uses `@videojs/hlsjs-video`; Mux video and audio use `@videojs/mux-video` and
+`@videojs/mux-audio`; DASH uses `@videojs/dash-video`; Vimeo uses `@videojs/vimeo-video`; and Shaka and Wistia use
+`@videojs/shaka-video` and `@videojs/wistia-video`.
 
 <FrameworkCase frameworks={["html"]}>
 For HLS from the CDN:
@@ -333,7 +350,7 @@ import { HlsVideo } from '@videojs/react/media/hls-video';
 ```
 </FrameworkCase>
 
-Start with the default HLS component, and move to hls.js if you hit something it doesn't handle. The default runs on SPF, Video.js's own playback engine, and it's the reason v10 can be as small as it is. The hls.js one is a much larger download but more compatible, supporting TS-packaged media and DRM.
+The lightweight HLS component runs on SPF, Video.js's own playback engine, and helps keep v10 small. The hls.js component is a much larger download but more compatible, supporting TS-packaged media and DRM. Choose the one whose supported feature set fits your stream.
 
 Your VHS tuning options don't have direct equivalents. Rendition capping, bandwidth hints, and the rest are engine-specific, so they belong to whichever engine you chose rather than to a shared options object.
 
@@ -365,15 +382,15 @@ video-player {
 
 `--media-accent-color` reaches the sliders, the active buttons, and the accent surfaces at once. Video.js derives a readable text color to sit on top of it; override that with `--media-accent-text-color` if you'd rather choose. `--media-border-radius` rounds the player, and `--media-scale-unit` scales the whole control bar, which is the closest thing to v8's `font-size` trick for sizing controls. <DocsLink slug="guides/customize-skins" anchor="style-a-packaged-skin">Customize skins</DocsLink> has the full list.
 
-### Level 3: eject
+### Level 3: edit skin source
 
-For changes to controls, layout, or interactions, eject the skin into your project. Its components and styles become files you own. <DocsLink slug="guides/customize-skins" anchor="eject-and-edit-a-skin">Customize skins</DocsLink> covers the setup and available skins.
+For changes to controls, layout, or interactions, add the skin source to your project. Its components and styles become local files. <DocsLink slug="guides/customize-skins" anchor="style-skin-source">Customize skins</DocsLink> covers the setup and available skins.
 
 This is where v8's `controlBar` config and `addChild` calls end up, and honestly it's the better trade. Instead of `controlBar: { pictureInPictureToggle: false }`, you delete a line. Instead of subclassing a component to change its behavior, you edit the markup.
 
 <FrameworkCase frameworks={["html"]}>
 
-Keep the player and skin registration imports. The skin import registers the container and UI elements that your ejected layout uses; you do not render the skin element itself:
+Keep the player and skin registration imports. The skin import registers the container and UI elements that the copied layout uses; you do not render the skin element itself:
 
 ```js
 import '@videojs/html/video/player';
@@ -461,18 +478,18 @@ export function MyPlayer() {
 
 Those hotkey and gesture declarations are where `userActions` went. v8's `userActions.hotkeys` was a function you wrote; here each shortcut is a component with a key and an action, and `userActions.click` and `doubleClick` become gestures with a region. The packaged skins already include a sensible set of both, which is why you don't see them in the earlier examples.
 
-Ejecting is also where you take on the skin's CSS. The packaged skins ship styles for everything above; a bare layout renders unstyled until you bring those along, so the copied source includes the skin's stylesheet next to its markup.
+When you add the skin source, you also take on its CSS. The packaged skins ship styles for everything above; a bare layout renders unstyled until you bring those along, so the added source includes the skin's stylesheet next to its markup.
 
 ## Plugins
 
 v10 has no plugin system. There's no `videojs.registerPlugin`, no `player.myPlugin()`, and no plugin lifecycle.
 
-That's a deliberate choice rather than a missing feature. v8 plugins existed largely because there was no other way in: to add a control, change a behavior, or support a format, you had to reach into player internals through the one door the plugin API provided. v10 gives you the front door instead: components you can add, skins you can eject, media elements you can swap. Most of what plugins did is now ordinary composition.
+That's a deliberate choice rather than a missing feature. v8 plugins existed largely because there was no other way in: to add a control, change a behavior, or support a format, you had to reach into player internals through the one door the plugin API provided. v10 gives you the front door instead: components you can add, skin source you can change, and media elements you can swap. Most of what plugins did is now ordinary composition.
 
 Audit your plugins and sort them into four piles:
 
 - **Formats and techs** (`videojs-contrib-*`, YouTube, Vimeo, Mux). Replace with the matching media component. See [Techs become media components](#techs-become-media-components).
-- **UI additions** (extra buttons, overlays, custom control bars). Rebuild as components in an ejected skin, or with <DocsLink slug="guides/build-your-own-component">your own component</DocsLink>. This is usually less code than the plugin was.
+- **UI additions** (extra buttons, overlays, custom control bars). Rebuild them by editing the skin source in your project, or with <DocsLink slug="guides/build-your-own-component">your own component</DocsLink>. This is usually less code than the plugin was.
 - **Workarounds** for v8 limitations. Check whether the limitation still exists before you port anything.
 - **Genuinely missing features** (ads, playlists). These need real work, and some have no home yet. Get them on the list early, because they'll drive your timeline.
 
@@ -537,21 +554,41 @@ v8 used accessor methods for everything: `player.currentTime()` to read, `player
 
 You can also write to the media element directly. That is safe because player state derives from the native media events: set `media.currentTime` and the time slider follows. There is no wrapper to fall out of sync.
 
+<FrameworkCase frameworks={["react"]}>
 | Video.js 8 | Video.js v10 |
 |---|---|
-| `player.play()`, `player.pause()` | the player's `play`, `pause`, `togglePaused`, or `media.play()`, `media.pause()` |
+| `player.play()`, `player.pause()` | the player's `play`, `pause`, or `media.play()`, `media.pause()` |
 | `player.currentTime()` / `player.currentTime(10)` | `currentTime` in player state, the player's `seek(10)`, or `media.currentTime` |
 | `player.duration()` | `duration` in player state, or `media.duration` |
-| `player.volume()`, `player.muted()` | the player's `setVolume`, `toggleMuted`, or `media.volume`, `media.muted` |
+| `player.volume()`, `player.muted()` | the player's `setVolume`, `setMuted`, or `media.volume`, `media.muted` |
 | `player.playbackRate()` | the player's `setPlaybackRate`, or `media.playbackRate` |
-| `player.src({ src, type })` | set `src` on the media or replace the media element (`<video>` tag, `<hlsjs-video>`, `<dash-video>`, etc) |
-| `player.requestFullscreen()`, `exitFullscreen()` | the player's `requestFullscreen`, `exitFullscreen`, `toggleFullscreen` |
+| `player.src({ src, type })` | set `src` on the media or replace the media component (`Video`, `HlsJsVideo`, `DashVideo`, etc) |
+| `player.requestFullscreen()`, `exitFullscreen()` | the player's `requestFullscreen`, `exitFullscreen` |
 | `player.textTracks()`, `addRemoteTextTrack()` | `<track>` elements, and `textTrackList` in player state, `textTracks` in media |
 | `player.audioTracks()` | `audioTrackList` in player state, `audioTracks` in media |
 | `player.error()` | `error` in player state |
-| `player.dispose()` | remove the element, or unmount the component |
-| `player.tech()` | the media component's public `engine` escape hatch, where one exists; in React, reach it through `useMedia()` |
+| `player.dispose()` | unmount the component |
+| `player.tech()` | the media component's public `engine` escape hatch, where one exists; reach it through `useMedia()` |
+| `videojs.getPlayer(id)` | call `usePlayer` from a component inside the player |
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+| Video.js 8 | Video.js v10 |
+|---|---|
+| `player.play()`, `player.pause()` | the player's `play`, `pause`, or `media.play()`, `media.pause()` |
+| `player.currentTime()` / `player.currentTime(10)` | `currentTime` in player state, the player's `seek(10)`, or `media.currentTime` |
+| `player.duration()` | `duration` in player state, or `media.duration` |
+| `player.volume()`, `player.muted()` | the player's `setVolume`, `setMuted`, or `media.volume`, `media.muted` |
+| `player.playbackRate()` | the player's `setPlaybackRate`, or `media.playbackRate` |
+| `player.src({ src, type })` | set `src` on the media or replace the media element (`<video>` tag, `<hlsjs-video>`, `<dash-video>`, etc) |
+| `player.requestFullscreen()`, `exitFullscreen()` | the player's `requestFullscreen`, `exitFullscreen` |
+| `player.textTracks()`, `addRemoteTextTrack()` | `<track>` elements, and `textTrackList` in player state, `textTracks` in media |
+| `player.audioTracks()` | `audioTrackList` in player state, `audioTracks` in media |
+| `player.error()` | `error` in player state |
+| `player.dispose()` | remove the element |
+| `player.tech()` | the media component's public `engine` escape hatch, where one exists |
 | `videojs.getPlayer(id)` | hold a reference to the element |
+</FrameworkCase>
 
 <FrameworkCase frameworks={["html"]}>
 Everything the table describes as "the player's" lives on the player element's store. Hold a reference to `<video-player>` the way you held a v8 player instance, and call actions on its `store.state`:
@@ -559,12 +596,12 @@ Everything the table describes as "the player's" lives on the player element's s
 ```js
 const player = document.querySelector('video-player');
 
-player.store.state.toggleFullscreen();
+player.store.state.requestFullscreen();
 ```
 </FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
-Where v8 had you keep the `videojs()` return value in a ref, put the ref on the media component instead; its value is the rendered `HTMLVideoElement`, ready for every `media.*` entry in the table. The player's actions come from the same `usePlayer` hook you read state with — select `togglePaused`, `setPlaybackRate`, or `toggleFullscreen` from state and call it. Where `player.tech()` habits linger, `useMedia` returns the Video.js media object.
+Where v8 had you keep the `videojs()` return value in a ref, put the ref on the media component instead; its value is the rendered `HTMLVideoElement`, ready for every `media.*` entry in the table. The player's actions come from the same `usePlayer` hook you read state with — select `play`, `setPlaybackRate`, or `requestFullscreen` from state and call it. Where `player.tech()` habits linger, `useMedia` returns the Video.js media object.
 </FrameworkCase>
 
 Swapping sources is the change most likely to surprise you. There's no `player.src()`; you set `src` on the media element, or replace the media element entirely, and the UI follows. Changing formats is changing tags.
@@ -661,12 +698,12 @@ v8 put a handful of utilities on the `videojs` global for anyone building a cust
 These are worth reaching for before writing your own when extending the player. For example, `formatTime` is the exact digital-clock formatting the packaged skins use for their own time displays, so a custom one will match.
 The package is split into subpaths, so you can import only the module you need. Other than `time`, it includes `array`, `events`, `i18n`, `jwt`, `predicate`, `string`, and `types` subpaths for anything else a custom component or plugin replacement needs.
 
-Import the util function directly with a `<script>` tag:
+Import the util function directly in a module `<script>` tag:
 
 ```html
-<script src="
-    {{VJS10_UTILS_CDN_BASE}}/dist/time/formatTime.min.js
-"></script>
+<script type="module">
+  import { formatTime } from '{{VJS10_UTILS_CDN_BASE}}/dist/time.js';
+</script>
 ```
 
 Or with a bundler:
@@ -690,9 +727,9 @@ Ordered roughly by how likely each is to block a v8 migration.
 - No text-track settings dialog. v8's `textTrackSettings` let viewers restyle captions; v10 exposes only the positioning custom properties its skins define.
 - No spatial navigation. v8's `spatialNavigation` for TV and D-pad remotes has no equivalent.
 - Nothing persists between sessions: volume, captions language, speed, quality. That's out of scope for GA ([#944](https://github.com/videojs/v10/issues/944)). Default subtitle language is tracked at [#1423](https://github.com/videojs/v10/issues/1423).
-- No VHS-equivalent tuning surface. Engine settings belong to the engine you chose, and the default HLS component deliberately exposes few of them.
+- No VHS-equivalent tuning surface. Engine settings belong to the engine you chose, and the lightweight HLS component deliberately exposes few of them.
 - Chapters render in the time slider from a `<track kind="chapters">`, and its segments reflect `data-active`. There is no player-level active chapter value or chapter menu, so v8's chapters menu has no equivalent ([#1873](https://github.com/videojs/v10/issues/1873)). Cue points aren't implemented ([#1442](https://github.com/videojs/v10/issues/1442)).
-- The controls auto-hide delay isn't configurable, so arbitrary `inactivityTimeout` values have no equivalent ([#1728](https://github.com/videojs/v10/issues/1728)). The common `inactivityTimeout: 0` case is covered by `visibility="always"` on the controls component in a custom or ejected skin.
+- The controls auto-hide delay isn't configurable, so arbitrary `inactivityTimeout` values have no equivalent ([#1728](https://github.com/videojs/v10/issues/1728)). The common `inactivityTimeout: 0` case is covered by `visibility="always"` on the controls component in a custom layout or a skin layout in your project.
 - No full-window fullscreen fallback. v8 had one for browsers without the Fullscreen API; [support is around 96%](https://caniuse.com/fullscreen) now.
 - Multiple `<source>` elements with `size` metadata don't become a quality menu. Use HLS or DASH for adaptive quality; picking renditions by resolution won't be added ([#1415](https://github.com/videojs/v10/issues/1415)).
 - Two skins, and no runtime theme switch.

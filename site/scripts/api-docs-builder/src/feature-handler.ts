@@ -8,8 +8,11 @@ import type { OxcProject, ResolvedDeclaration, ResolvedMember, SourceFile } from
 import {
   expressionText,
   getJSDocDescription,
+  isOptionalParameter,
   literalValue,
   OxcProject as Project,
+  parameterPattern,
+  parameterTypeAnnotation,
   staticName,
   typeNameText,
   unwrapExpression,
@@ -451,14 +454,7 @@ function firstParameterType(member: TSSignature): TSType | undefined {
         : undefined;
   if (!parameter) return undefined;
 
-  const pattern =
-    parameter.type === 'RestElement'
-      ? parameter.argument
-      : parameter.type === 'TSParameterProperty'
-        ? parameter.parameter
-        : parameter;
-
-  return pattern.typeAnnotation?.typeAnnotation;
+  return parameterTypeAnnotation(parameter);
 }
 
 function formatMethod(
@@ -468,19 +464,16 @@ function formatMethod(
   substitutions?: ReadonlyMap<string, import('./oxc-project.js').ResolvedType>
 ): string {
   const parameters = member.params.map((parameter) => {
-    const pattern =
-      parameter.type === 'RestElement'
-        ? parameter.argument
-        : parameter.type === 'TSParameterProperty'
-          ? parameter.parameter
-          : parameter;
-    const name = pattern.type === 'Identifier' ? pattern.name.replace(/^_/, '') : '...';
-    const annotation = pattern.typeAnnotation?.typeAnnotation;
+    const pattern = parameterPattern(parameter);
+    const binding = pattern.type === 'AssignmentPattern' ? pattern.left : pattern;
+    const name = binding.type === 'Identifier' ? binding.name.replace(/^_/, '') : '...';
+    const annotation = parameterTypeAnnotation(parameter);
+    const optional = parameter.type !== 'RestElement' && isOptionalParameter(parameter);
     const type = annotation
-      ? formatDetailedType(project, { file, type: annotation, substitutions }, false)
+      ? formatDetailedType(project, { file, type: annotation, substitutions }, optional)
       : UNRESOLVED_TYPE;
 
-    return `${name}: ${type}`;
+    return `${parameter.type === 'RestElement' ? '...' : ''}${name}${optional ? '?' : ''}: ${type}`;
   });
   const returnType = member.returnType
     ? formatDetailedType(project, { file, type: member.returnType.typeAnnotation, substitutions }, false)

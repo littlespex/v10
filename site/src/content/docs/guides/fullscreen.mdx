@@ -20,13 +20,17 @@ import basicUsageHtml from '@/components/docs/demos/fullscreen-button/html/css/B
 import basicUsageHtmlCss from '@/components/docs/demos/fullscreen-button/html/css/BasicUsage.css?raw';
 import basicUsageHtmlTs from '@/components/docs/demos/fullscreen-button/html/css/BasicUsage.ts?raw';
 
-Present the player fullscreen, with your custom controls intact, and optionally lock screen orientation while fullscreen on mobile.
-
 <CustomUiNote />
 
 ## Recommended approach
 
+<FrameworkCase frameworks={["react"]}>
 Add a <DocsLink slug="reference/components/fullscreen-button">FullscreenButton</DocsLink> inside the player container. It requests fullscreen on the container, so everything inside it — controls, captions, overlays — stays visible in the fullscreen presentation.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+Add a <DocsLink slug="reference/components/fullscreen-button">`<media-fullscreen-button>`</DocsLink> inside the player container. It requests fullscreen on the container, so everything inside it — controls, captions, overlays — stays visible in the fullscreen presentation.
+</FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
   <StyleCase styles={["css"]}>
@@ -55,9 +59,9 @@ Add a <DocsLink slug="reference/components/fullscreen-button">FullscreenButton</
 
 The <DocsLink slug="reference/api/feature-fullscreen">fullscreen feature</DocsLink> tracks fullscreen state and provides the actions:
 
-- `fullscreen` is `true` while the player is fullscreen, from any path — your button, native controls, or the platform presentation.
+- `isFullscreen` is `true` while the player is fullscreen, from any path — your button, native controls, or the platform presentation.
 - `fullscreenAvailability` is `'available'`, `'unavailable'`, or `'unsupported'`. It starts as `'unavailable'`, then settles to `'available'` or `'unsupported'` when the feature attaches to a media element.
-- `requestFullscreen()`, `exitFullscreen()`, and `toggleFullscreen()` change the presentation. Requests target the player container when the Fullscreen API is available, falling back to the media element's native presentation otherwise.
+- `requestFullscreen()` and `exitFullscreen()` change the presentation. Requests target the player container when the Fullscreen API is available, falling back to the media element's native presentation otherwise.
 
 Fullscreen and picture-in-picture are exclusive: requesting fullscreen exits an active picture-in-picture presentation first.
 
@@ -74,9 +78,9 @@ Style fullscreen state through the container's `:fullscreen` pseudo-class, or th
 
 ### Lock orientation while fullscreen
 
-Add `orientationLockFeature` to lock screen orientation while the player is fullscreen. It isn't part of `videoFeatures`, so the preset `VideoPlayer` doesn't include it. It locks to `landscape` by default and unlocks on exit.
-
 <FrameworkCase frameworks={["react"]}>
+
+Add `orientationLockFeature` to lock screen orientation while the player is fullscreen. It isn't part of `videoFeatures`, so the preset `VideoPlayer` doesn't include it. It locks to `landscape` by default and unlocks on exit.
 
 Because the feature list changes, build the player yourself with <DocsLink slug="reference/api/create-player">`createPlayer`</DocsLink> — the escape hatch for custom feature sets:
 
@@ -102,17 +106,25 @@ export default function App() {
 </FrameworkCase>
 <FrameworkCase frameworks={["html"]}>
 
+Add `orientationLockFeature` to lock screen orientation while the player is fullscreen. It isn't part of `videoFeatures`, so the preset `<video-player>` doesn't include it. It locks to `landscape` by default and unlocks on exit.
+
 Compose a player with `orientationLockFeature` in its feature list through <DocsLink slug="reference/api/html-create-player">`createPlayer`</DocsLink>; the prebuilt `<video-player>` element doesn't include it.
 
 </FrameworkCase>
 
-To lock to something other than `landscape`, set `orientationLockType` on the player (the `orientation-lock-type` attribute in HTML). See the <DocsLink slug="reference/api/feature-orientation-lock">orientation lock feature</DocsLink> reference for details.
+<FrameworkCase frameworks={["react"]}>
+To lock to something other than `landscape`, set `orientationLockType` on the player. See the <DocsLink slug="reference/api/feature-orientation-lock">orientation lock feature</DocsLink> reference for details.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+To lock to something other than `landscape`, set the `orientation-lock-type` attribute on the player. See the <DocsLink slug="reference/api/feature-orientation-lock">orientation lock feature</DocsLink> reference for details.
+</FrameworkCase>
 
 ### Double-click to toggle
 
-Use the `Gesture` component — the default skins ship this exact binding. Keep the button as the accessible path; gestures are a pointer-only shortcut.
-
 <FrameworkCase frameworks={["react"]}>
+
+Use the `Gesture` component — the default skins ship this exact binding. Keep the button as the accessible path; gestures are a pointer-only shortcut.
 
 ```tsx
 import { Gesture } from '@videojs/react';
@@ -122,6 +134,8 @@ import { Gesture } from '@videojs/react';
 
 </FrameworkCase>
 <FrameworkCase frameworks={["html"]}>
+
+Use the `<media-gesture>` element — the default skins ship this exact binding. Keep the button as the accessible path; gestures are a pointer-only shortcut.
 
 ```html
 <media-gesture type="doubletap" action="toggleFullscreen" region="center"></media-gesture>

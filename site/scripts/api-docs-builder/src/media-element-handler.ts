@@ -17,10 +17,12 @@ import { collectDispatchedEvents, collectFires } from './event-handler.js';
 import { abbreviateType, formatDetailedType } from './formatter.js';
 import {
   expressionText,
+  getJSDoc,
   getJSDocDescription,
   type NamedDeclaration,
   type OxcProject,
   OxcProject as Project,
+  parameterPattern,
   type ResolvedMember,
   type ResolvedType,
   type SourceFile,
@@ -1140,7 +1142,9 @@ function extractPublicMethodNames(filePath: string, className: string, project: 
       member.kind !== 'method' ||
       member.static ||
       member.accessibility === 'private' ||
-      member.accessibility === 'protected'
+      member.accessibility === 'protected' ||
+      member.key.type === 'PrivateIdentifier' ||
+      getJSDoc(resolved.file, member)?.tags.has('internal')
     ) {
       return [];
     }
@@ -1238,15 +1242,7 @@ function functionFromDeclaration(
 function parameterName(parameter: ParamPattern): string | undefined {
   const pattern = parameterPattern(parameter);
 
-  return pattern?.type === 'Identifier' ? pattern.name : undefined;
-}
-
-function parameterPattern(parameter: ParamPattern): import('oxc-parser').BindingPattern | undefined {
-  if (parameter.type === 'RestElement') return parameter.argument;
-
-  if (parameter.type === 'TSParameterProperty') return parameter.parameter;
-
-  return parameter;
+  return pattern.type === 'Identifier' ? pattern.name : undefined;
 }
 
 function staticStringClassProperty(declaration: Class, name: string): string | undefined {

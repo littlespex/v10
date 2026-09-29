@@ -20,13 +20,17 @@ import basicUsageHtml from '@/components/docs/demos/controls/html/css/BasicUsage
 import basicUsageHtmlCss from '@/components/docs/demos/controls/html/css/BasicUsage.css?raw';
 import basicUsageHtmlTs from '@/components/docs/demos/controls/html/css/BasicUsage.ts?raw';
 
-Show controls while the user is active, fade them out during undisturbed playback, and bring them back on interaction.
-
 <CustomUiNote />
 
 ## Recommended approach
 
+<FrameworkCase frameworks={["react"]}>
 Wrap your control UI in <DocsLink slug="reference/components/controls">Controls</DocsLink>. It reads controls visibility from player state, so the whole control bar shows and hides as one unit.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+Wrap your control UI in <DocsLink slug="reference/components/controls">`<media-controls>`</DocsLink>. It reads controls visibility from player state, so the whole control bar shows and hides as one unit.
+</FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
   <StyleCase styles={["css"]}>
@@ -57,7 +61,7 @@ The <DocsLink slug="reference/api/feature-controls">controls feature</DocsLink> 
 
 - `userActive` is `true` while the user interacts — pointer movement, keyboard input, or focus — and flips to `false` after two seconds of inactivity.
 - `controlsVisible` derives from activity and playback: controls stay visible while paused or while a remote playback session is connecting or connected, regardless of idle state.
-- `toggleControls()` flips visibility, for wiring to custom triggers.
+- `toggleControls(forceShow?)` flips visibility for custom triggers, or shows (`true`) or hides (`false`) the controls. Hiding counts as going idle, so controls stay visible while paused or casting.
 
 On touch devices, a tap on the media toggles the controls instead of relying on pointer movement, and mid-gesture movement doesn't flicker visibility.
 
@@ -74,7 +78,13 @@ The feature needs the player container for activity tracking; without a containe
 
 ### Always-visible controls
 
+<FrameworkCase frameworks={["react"]}>
 Set `visibility="always"` on <DocsLink slug="reference/components/controls">Controls</DocsLink>. The controls stay visible and report the user as active while the feature keeps tracking activity for anything else that needs it. The packaged audio skins use this mode.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+Set `visibility="always"` on <DocsLink slug="reference/components/controls">`<media-controls>`</DocsLink>. The controls stay visible and report the user as active while the feature keeps tracking activity for anything else that needs it. The packaged audio skins use this mode.
+</FrameworkCase>
 
 <FrameworkCase frameworks={["react"]}>
 ```tsx

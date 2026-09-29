@@ -48,7 +48,7 @@ If you're in the monorepo's root...
 
 | Command                   | Action                                                                                                                                  |
 | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev:site`           | Starts local dev server at `localhost:4321`; generates API references, the CDN manifest, and package builds only when they are missing |
+| `pnpm dev:site`           | Starts local dev server at `localhost:4321`; generates API references and package builds only when they are missing |
 | `pnpm dev:site --prepare` | Same, but regenerates API references and rebuilds packages first (after changing package source or JSDoc)                            |
 | `pnpm build:site`         | Build the production site to `site/dist/`                                                                                            |
 
@@ -123,7 +123,8 @@ High-level primer?
 - Guides are written in MDX and stored in `src/content/docs/`
 - Guides are separated into how-to guides (focused on an outcome) and concept guides (focused on understanding) according to the [Diataxis](https://diataxis.fr) framework.
 - Astro's [Content Collections API](https://docs.astro.build/en/guides/content-collections/) transforms the MDX into data
-- That data is rendered in `src/pages/docs/framework/[framework]/[...slug].astro`
+- That data is rendered by `src/pages/docs/framework/[framework]/[...slug].astro`; the canonical installation routes
+  use `src/pages/docs/guides/installation/[framework].astro`
 - Standard MDX typography is defined in `src/components/typography/`
 
 It's also worth pausing and explaining one big quirk of our docs...
@@ -134,10 +135,13 @@ We want docs to feel idiomatic, no matter your framework or styling preference. 
 
 We currently support two frameworks (HTML, React) and one styling approach (CSS). This is defined in [types/docs.ts](src/types/docs.ts).
 
-Every doc generates a route per framework. E.g., `guides/installation.mdx` becomes:
+Most docs generate a route per framework. For example, `guides/architecture.mdx` becomes:
 
-- `/docs/framework/html/guides/installation/`
-- `/docs/framework/react/guides/installation/`
+- `/docs/framework/html/guides/architecture/`
+- `/docs/framework/react/guides/architecture/`
+
+Installation is the entry point readers search for by framework and method, so its six pages use canonical routes under
+`/docs/guides/installation/`: React, HTML, Vue, Svelte, Shadcn, and CDN.
 
 Content that applies to only certain frameworks or styles can be restricted in two ways:
 
@@ -196,3 +200,16 @@ One custom Astro integration in `integrations/`:
 - **llms-markdown** — Generates LLM-optimized `.md` files and `llms.txt` indexes from `[data-llms-content]` elements
 
 Read [`integrations/llms-markdown.ts`](integrations/llms-markdown.ts) for implementation details.
+
+### Markdown delivery
+
+Every generated page has a static `.md` twin. Netlify serves those files directly, with the Markdown headers the
+build writes to `_headers`, and the edge functions in [`netlify/edge-functions/`](netlify/edge-functions/) negotiate
+`Accept: text/markdown` on the HTML routes. Installation twins are the exception to the otherwise static response: the
+shared renderer in `@videojs/installation` validates their query parameters and replaces the generated installation
+section at the edge.
+The same renderer powers the `npx @videojs/cli agents init` command and the docs bundled with `@videojs/react` and
+`@videojs/html`.
+
+Edge functions resolve workspace packages through [`netlify/edge-functions/import_map.json`](netlify/edge-functions/import_map.json).
+Keep that map in sync when an edge handler adds or moves a workspace import.

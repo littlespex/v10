@@ -15,6 +15,18 @@ Video.js v10 is close to stable. Try it out in real projects and share your feed
 - Read the [v10 discussion topic][v10-discussion].
 - Watch [Heff's recent presentation][heff-presentation].
 
+## AI Quickstart
+
+Using an AI coding agent? Install the [Video.js skill](https://github.com/videojs/skills) so it reads
+the docs that match this package version before writing code.
+
+Then print the version-matched installation choices for your framework. The command returns instructions without
+modifying your project:
+
+```sh
+npx @videojs/cli agents init
+```
+
 ## Timeline
 
 - **Technical Preview (Complete):** Initial showcase for Demuxed.

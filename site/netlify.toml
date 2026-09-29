@@ -2,6 +2,9 @@
   command = "pnpm exec vp run --no-cache site#build"
   publish = "site/dist"
 
+[functions]
+  deno_import_map = "site/netlify/edge-functions/import_map.json"
+
 # PostHog reverse proxy (ad-blocker bypass)
 [[redirects]]
   from = "/ph/static/*"
@@ -54,6 +57,57 @@
 
 # Docs pages that moved or were renamed on the redesign, listed before the section-wide rules below so a page that
 # changed slug as well as section lands on its new address in one hop. Each page has a .md twin.
+[[redirects]]
+  from = "/docs/framework/react/guides/installation"
+  to = "/docs/guides/installation/react"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/react/guides/installation.md"
+  to = "/docs/guides/installation/react.md"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation"
+  to = "/docs/guides/installation/html"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation.md"
+  to = "/docs/guides/installation/html.md"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation-vue"
+  to = "/docs/guides/installation/vue"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation-vue.md"
+  to = "/docs/guides/installation/vue.md"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation-svelte"
+  to = "/docs/guides/installation/svelte"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/html/guides/installation-svelte.md"
+  to = "/docs/guides/installation/svelte.md"
+  status = 301
+
+# Redirect the earlier proposed short-form installation routes.
+[[redirects]]
+  from = "/docs/installation"
+  to = "/docs/guides/installation"
+  status = 301
+
+[[redirects]]
+  from = "/docs/installation/*"
+  to = "/docs/guides/installation/:splat"
+  status = 301
+
 [[redirects]]
   from = "/docs/framework/react/concepts/custom-element-lifecycle"
   to = "/docs/framework/react/guides/build-your-own-component"
@@ -758,6 +812,17 @@
   to = "/docs/framework/:framework/writing-style/write-references.md"
   status = 301
 
+# The I18nController page took its generated kebab-case slug until it gained an override.
+[[redirects]]
+  from = "/docs/framework/:framework/reference/api/i-18-n-controller"
+  to = "/docs/framework/:framework/reference/api/i18n-controller"
+  status = 301
+
+[[redirects]]
+  from = "/docs/framework/:framework/reference/api/i-18-n-controller.md"
+  to = "/docs/framework/:framework/reference/api/i18n-controller.md"
+  status = 301
+
 [[redirects]]
   from = "/docs/framework/:framework/how-to/*"
   to = "/docs/framework/:framework/guides/:splat"
@@ -1048,12 +1113,12 @@
 
 [[redirects]]
   from = "/docs/framework/:framework/components/i-18-n-controller"
-  to = "/docs/framework/:framework/reference/api/i-18-n-controller"
+  to = "/docs/framework/:framework/reference/api/i18n-controller"
   status = 301
 
 [[redirects]]
   from = "/docs/framework/:framework/components/i-18-n-controller.md"
-  to = "/docs/framework/:framework/reference/api/i-18-n-controller.md"
+  to = "/docs/framework/:framework/reference/api/i18n-controller.md"
   status = 301
 
 [[redirects]]

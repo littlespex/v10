@@ -1,5 +1,40 @@
 # Changelog
 
+## [10.0.0-rc.4](https://github.com/videojs/v10/compare/@videojs/native-hls-video@10.0.0-rc.3...@videojs/native-hls-video@10.0.0-rc.4) (2026-09-26)
+
+
+### Miscellaneous Chores
+
+* **@videojs/native-hls-video:** Synchronize videojs versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @videojs/media bumped to 10.0.0-rc.4
+    * @videojs/utils bumped to 10.0.0-rc.4
+
+## [10.0.0-rc.3](https://github.com/videojs/v10/compare/@videojs/native-hls-video@10.0.0-rc.2...@videojs/native-hls-video@10.0.0-rc.3) (2026-09-25)
+
+
+### Bug Fixes
+
+* **site:** improve markdown for agents ([#2883](https://github.com/videojs/v10/issues/2883)) ([d5c8e3c](https://github.com/videojs/v10/commit/d5c8e3cde77cbbe74ecc6878dbd7862db8628bfa))
+
+
+### Performance Improvements
+
+* **site:** faster docs dev server start ([#2698](https://github.com/videojs/v10/issues/2698)) ([33d3887](https://github.com/videojs/v10/commit/33d38873ed5337a5695eaa426a5ebfbea61356d2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @videojs/media bumped to 10.0.0-rc.3
+    * @videojs/utils bumped to 10.0.0-rc.3
+
 ## [10.0.0-rc.2](https://github.com/videojs/v10/compare/@videojs/native-hls-video@10.0.0-rc.1...@videojs/native-hls-video@10.0.0-rc.2) (2026-09-09)
 
 

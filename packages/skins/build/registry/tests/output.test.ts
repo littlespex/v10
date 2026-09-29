@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { isPlainObject } from '@videojs/utils/predicate';
 import { type RegistryItem, registryItemSchema } from 'shadcn/schema';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 const packageDir = resolve(import.meta.dirname, '../../..');
 const registryDirs = {
@@ -152,8 +152,21 @@ describe('React registry output', () => {
       expect(items.get('error-dialog')?.categories).toEqual(['media', 'dialogs']);
       expect(items.get('poster')?.categories).toEqual(['media', 'display']);
       expect(items.get('status-announcer')?.categories).toEqual(['media', 'behaviors']);
+      expect(items.get('title')?.categories).toEqual(['media', 'display']);
       expect(items.get('volume-popover')?.categories).toEqual(['media', 'menus']);
       expect(items.get('container')?.categories).toEqual(['media', 'layout']);
+    }
+  });
+
+  it('publishes title styles in the shared display stylesheet', () => {
+    for (const registryDir of Object.values(cssRegistryDirs)) {
+      const items = readRegistryItems(registryDir);
+
+      expect(items.get('title')?.registryDependencies).toContain('@videojs/_style-display');
+      expect(items.get('_style-display')?.files?.map((file) => file.target)).toEqual([
+        '@components/videojs/styles/display.css',
+      ]);
+      expect(items.has('_style-title')).toBe(false);
     }
   });
 

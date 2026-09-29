@@ -84,6 +84,10 @@ describe('formatType', () => {
     ['React.CSSProperties', 'CSSProperties'],
     ['Map<string, number>', 'Map<string, number>'],
     ['(x: string) => void', '((x: string) => void)'],
+    ['{ (state: State): Result; displayName?: string }', '{ (state: State): Result; displayName?: string }'],
+    ['{ run(count?: number, ...rest: string[]): void }', '{ run(count?: number, ...rest: string[]): void }'],
+    ['new (host: HTMLElement) => Controller', '(new (host: HTMLElement) => Controller)'],
+    ['Tag | (string & {})', 'Tag | string & {}'],
   ])('formats %s', (input, expected, removeUndefined = false) => {
     expect(formatType(parseType(input), removeUndefined)).toBe(expected);
   });
@@ -93,11 +97,25 @@ describe('formatType', () => {
       'string | number | null | undefined'
     );
   });
+
+  it('formats call and construct signatures with type substitutions', () => {
+    const type = parseType('{ (state: State): Result; new <Value>(store: Store): PlayerController<Store> }');
+    const substitutions = new Map<string, ResolvedType>([
+      ['State', parseType("'ready'")],
+      ['Result', parseType('boolean')],
+      ['Store', parseType('VideoPlayerStore')],
+    ]);
+
+    expect(formatType({ ...type, substitutions }, false)).toBe(
+      "{ (state: 'ready'): boolean; new <Value>(store: VideoPlayerStore): PlayerController<VideoPlayerStore> }"
+    );
+  });
 });
 
 describe('formatDetailedType', () => {
   const project = new OxcProject(FIXTURE_ROOT);
   const gaugeFile = path.join(FIXTURE_ROOT, 'packages/core/src/core/ui/gauge/core.ts');
+  const mediaTypesFile = path.join(FIXTURE_ROOT, 'packages/media/src/core/types.ts');
 
   it('expands a local alias through the Oxc project resolver', () => {
     const file = project.source(gaugeFile)!;
@@ -110,6 +128,46 @@ describe('formatDetailedType', () => {
     const file = project.source(gaugeFile)!;
 
     expect(formatDetailedType(project, parseType('UnknownType', file), false)).toBe('UnknownType');
+  });
+
+  it('expands indexed access over a const object to its literal values', () => {
+    const file = project.source(mediaTypesFile)!;
+
+    expect(formatDetailedType(project, parseType('MediaStreamType', file), false)).toBe(
+      "'on-demand' | 'live' | 'unknown'"
+    );
+  });
+
+  it('expands keyof over a const object to its literal keys', () => {
+    const file = project.source(mediaTypesFile)!;
+
+    expect(formatDetailedType(project, parseType('MediaStreamTypeKey', file), false)).toBe(
+      "'ON_DEMAND' | 'LIVE' | 'UNKNOWN'"
+    );
+  });
+
+  it('expands inherited interface members and their aliased types', () => {
+    const file = project.source(gaugeFile)!;
+
+    expect(formatDetailedType(project, parseType('TapGestureOptions', file), false)).toBe(
+      "{ pointer?: 'mouse' | 'touch'; disabled?: boolean; target?: HTMLElement | null }"
+    );
+  });
+
+  it('keeps derived properties and method overloads when expanding heritage', () => {
+    const file = project.source(gaugeFile)!;
+
+    expect(formatDetailedType(project, parseType('OverrideOptions', file), false)).toBe(
+      "{ inherited: boolean; value?: string; addListener(type: 'ready', listener: (() => void)): void; addListener(type: 'change', listener: ((value: string) => void)): void }"
+    );
+  });
+
+  it('uses display type hints with generic substitutions', () => {
+    const file = project.source(gaugeFile)!;
+
+    expect(formatDetailedType(project, parseType('InferFixtureState<FixtureStore>', file), false)).toBe(
+      "FixtureStore['state']"
+    );
   });
 });
 

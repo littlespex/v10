@@ -83,6 +83,7 @@ export function filterHeadingsForToc(headings: MarkdownHeading[]): MarkdownHeadi
   const apiReferenceSubsectionTitles = new Set(API_REFERENCE_SUBSECTION_TITLES);
   const isTocHeadingDepth = (depth: number): boolean => depth === 2 || depth === 3;
   const isApiReferenceSubsectionHeading = (heading: MarkdownHeading): boolean => {
+    // SAFETY: the conditional-heading plugin optionally adds tocKind to Astro's MarkdownHeading shape.
     const tocKind = (heading as MarkdownHeading & { tocKind?: string }).tocKind;
 
     return tocKind === 'api-reference-subsection' && apiReferenceSubsectionTitles.has(heading.text);
@@ -99,6 +100,52 @@ export function filterHeadingsForToc(headings: MarkdownHeading[]): MarkdownHeadi
 
     return false;
   });
+}
+
+/** Keep client-rendered conditional headings in the TOC only while their target exists on the page. */
+export function filterRenderedHeadings(
+  headings: MarkdownHeading[],
+  getElementById: (id: string) => HTMLElement | null = (id) => document.getElementById(id),
+  isVisible: (element: HTMLElement) => boolean = (element) => element.getClientRects().length > 0
+): MarkdownHeading[] {
+  return headings.filter((heading) => {
+    const element = getElementById(heading.slug);
+
+    return element !== null && !element.hasAttribute('data-conditional-heading-placeholder') && isVisible(element);
+  });
+}
+
+/** Follow headings mounted, removed, or hidden by the active installation selection. */
+export function useRenderedHeadings(headings: MarkdownHeading[]): MarkdownHeading[] {
+  const [renderedHeadings, setRenderedHeadings] = useState(headings);
+
+  useEffect(() => {
+    const update = () => setRenderedHeadings(filterRenderedHeadings(headings));
+
+    update();
+
+    const content = document.querySelector('[data-llms-content]') ?? document.body;
+    const contentObserver = new MutationObserver(update);
+    const selectionObserver = new MutationObserver(update);
+
+    contentObserver.observe(content, { childList: true, subtree: true });
+    selectionObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [
+        'data-installation-project',
+        'data-installation-template',
+        'data-registry-framework',
+        'data-registry-styling',
+      ],
+    });
+
+    return () => {
+      contentObserver.disconnect();
+      selectionObserver.disconnect();
+    };
+  }, [headings]);
+
+  return renderedHeadings;
 }
 
 /** Navigate to a heading through Astro so its history index and scroll state stay intact. */

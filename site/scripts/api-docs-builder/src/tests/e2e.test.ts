@@ -174,6 +174,11 @@ describe('Component pipeline (end-to-end)', () => {
       });
       expect(ref.props.onPressedChange!.detailedType).toBeDefined();
 
+      // The HTML element exposes `disabled` and `label` but has no `onPressedChange`, so only React documents it.
+      expect(ref.props.disabled!.frameworks).toBeUndefined();
+      expect(ref.props.label!.frameworks).toBeUndefined();
+      expect(ref.props.onPressedChange!.frameworks).toEqual(['react']);
+
       // ── State ──
       expect(ref.state.pressed).toEqual({
         type: 'boolean',
@@ -334,7 +339,11 @@ describe('Component pipeline (end-to-end)', () => {
       expect(track.cssCustomProperties).toEqual({});
 
       // Has both HTML and React platforms
-      expect(track.platforms.html).toEqual({ tagName: 'media-gauge-track' });
+      // The HTML element's own JSDoc replaces the React wording on HTML pages.
+      expect(track.platforms.html).toEqual({
+        tagName: 'media-gauge-track',
+        description: 'The track area of the gauge, as the `<media-gauge-track>` element.',
+      });
       expect(track.platforms.react).toEqual({});
     });
 
@@ -362,7 +371,11 @@ describe('Component pipeline (end-to-end)', () => {
       expect(fill.dataAttributes['data-percentage']).toBeDefined();
       expect(fill.dataAttributes['data-fill-level']).toBeDefined();
 
-      expect(fill.platforms.html).toEqual({ tagName: 'media-gauge-fill' });
+      // A compiler directive between the element's JSDoc and its class does not detach the JSDoc.
+      expect(fill.platforms.html).toEqual({
+        tagName: 'media-gauge-fill',
+        description: 'The filled portion of the gauge.',
+      });
       expect(fill.platforms.react).toEqual({});
     });
 
@@ -848,6 +861,48 @@ describe('Util pipeline (end-to-end)', () => {
 
       expect(useStore!.data.overloads[0]!.label).toBeUndefined();
     });
+
+    it('applies type substitutions inside call signatures', () => {
+      const useStore = findByName('useStore', 'react');
+      const selector = useStore!.data.overloads[1]!.parameters.selector;
+
+      expect(selector).toEqual({
+        type: 'object',
+        detailedType: "{ (state: S['state']): R; displayName?: string }",
+        required: true,
+      });
+    });
+
+    it('records function type parameters and their constraints', () => {
+      const useStore = findByName('useStore', 'react');
+
+      expect(useStore!.data.overloads[0]!.typeParameters).toEqual([{ name: 'S' }]);
+      expect(useStore!.data.overloads[0]!.returnType).toBe('S');
+      expect(useStore!.data.overloads[1]!.typeParameters).toEqual([
+        { name: 'S', constraint: 'AnyStore' },
+        { name: 'R' },
+      ]);
+    });
+
+    it('includes inherited interface members in parameter types', () => {
+      const useStore = findByName('useStore', 'react');
+
+      expect(useStore!.data.overloads[1]!.parameters.options).toEqual({
+        type: 'object',
+        detailedType: "{ mode?: 'active' | 'passive'; disabled?: boolean; label?: string }",
+      });
+    });
+
+    it('applies type substitutions inside construct signatures', () => {
+      const createPlayer = findByName('createPlayer', 'html');
+      const controller = createPlayer!.data.overloads[0]!.returnValue.fields!.PlayerController;
+
+      expect(controller).toMatchObject({
+        type: 'object',
+        detailedType:
+          '{ new (): PlayerController<VideoPlayerStore>; new <Result>(selector: Selector<VideoPlayerStore, Result>): PlayerController<VideoPlayerStore> }',
+      });
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────
@@ -891,6 +946,86 @@ describe('Util pipeline (end-to-end)', () => {
         type: 'function',
         detailedType: '(() => void)',
       });
+      expect(overload.returnValue.fields!.untrack).toMatchObject({
+        detailedType: '((delay?: number, ...reasons: string[]) => void)',
+      });
+    });
+
+    it('types defaulted and rest parameters from their own annotations', () => {
+      const useCompare = findByName('useCompare', 'react');
+      const { parameters } = useCompare!.data.overloads[0]!;
+
+      expect(parameters.value).toMatchObject({ type: 'T', required: true });
+      expect(parameters.isEqual).toMatchObject({ type: 'function' });
+      expect(parameters.isEqual!.detailedType).toContain('(a: T, b: T) => boolean');
+      expect(parameters.isEqual!.required).toBeUndefined();
+      expect(parameters.tags).toMatchObject({ type: 'string[]' });
+      expect(parameters.tags!.required).toBeUndefined();
+      expect(parameters.tags!.rest).toBe(true);
+    });
+
+    it('prints what a module-private alias names and keeps type parameter defaults', () => {
+      const [overload] = findByName('useEntries', 'react')!.data.overloads;
+
+      expect(overload!.typeParameters).toEqual([{ name: 'T', constraint: 'string', default: 'string' }]);
+      expect(overload!.parameters._entries?.type ?? overload!.parameters.entries?.type).toBe(
+        '({ kind: T } | undefined)[]'
+      );
+      expect(overload!.returnType).toBe('{ kind: T }[]');
+    });
+
+    it('groups a conditional member of a union', () => {
+      const [overload] = findByName('useKindOf', 'react')!.data.overloads;
+
+      expect(overload!.returnType).toBe("(S extends string ? 'text' : 'other') | undefined");
+    });
+
+    it('keeps the type parameters of a generic function type', () => {
+      expect(findByName('useIdentity', 'react')!.data.overloads[0]!.returnType).toBe('(<T>(value: T) => T)');
+    });
+
+    it('records a parameter default value', () => {
+      expect(findByName('useStep', 'react')!.data.overloads[0]!.parameters.step).toMatchObject({ default: '5' });
+    });
+
+    it('shows optional return fields as possibly undefined', () => {
+      const { fields } = findByName('useShortcut', 'react')!.data.overloads[0]!.returnValue;
+
+      expect(fields!.aria).toMatchObject({ type: 'string | undefined' });
+      expect(fields!.keys).toMatchObject({ type: 'string' });
+    });
+
+    it('applies @displayType inside a type literal', () => {
+      const { returnValue } = findByName('useBagHooks', 'react')!.data.overloads[0]!;
+
+      expect(returnValue.detailedType ?? returnValue.type).toContain("Bag['state']");
+      expect(returnValue.detailedType ?? returnValue.type).not.toContain('StateOf');
+    });
+
+    it("resolves a looked-up member in its own declaration's scope", () => {
+      const { fields } = findByName('useEngineInput', 'react')!.data.overloads[0]!.returnValue;
+
+      expect(fields!.input).toMatchObject({ type: 'Handle<string>' });
+      expect(fields!.count).toMatchObject({ type: 'Handle' });
+    });
+
+    it('documents a function-typed member export as a function', () => {
+      const [overload] = findByName('ToolkitProvider', 'react')!.data.overloads;
+
+      expect(overload!.parameters.props).toMatchObject({ required: true });
+      expect(overload!.parameters.props!.detailedType ?? overload!.parameters.props!.type).toContain('locale?: string');
+      expect(overload!.returnValue.type).toBe('unknown');
+    });
+
+    it('marks controller overloads as constructors and omits host callbacks', () => {
+      const snapshot = findByName('SnapshotController', 'html')!.data;
+
+      expect(snapshot.overloads[0]).toMatchObject({
+        construct: true,
+        typeParameters: [{ name: 'S' }, { name: 'R', default: 'S' }],
+      });
+      expect(snapshot.overloads[0]!.returnValue.fields).not.toHaveProperty('hostConnected');
+      expect(snapshot.overloads[0]!.returnValue.fields).not.toHaveProperty('hostDisconnected');
     });
 
     it('controller param descriptions have "- " prefix stripped', () => {
@@ -899,6 +1034,13 @@ describe('Util pipeline (end-to-end)', () => {
 
       expect(hostParam!.description).toBe('The host element.');
       expect(hostParam!.description).not.toMatch(/^-\s/);
+    });
+
+    it('controller constructor overloads keep their @label', () => {
+      const [withSelector, withoutSelector] = findByName('SnapshotController', 'html')!.data.overloads;
+
+      expect(withSelector!.label).toBe('With Selector');
+      expect(withoutSelector!.label).toBeUndefined();
     });
 
     it('contexts (@public non-function) have empty parameters and type as returnValue', () => {
@@ -1728,6 +1870,13 @@ describe('Media element pipeline (end-to-end)', () => {
       // Video methods = html-media-adapter methods + html-video-adapter methods, deduped + sorted.
       // Lifecycle methods (attach/detach/destroy) and accessors are excluded.
       expect(ref.platforms.html.methods).toEqual(['canPlayType', 'load', 'pause', 'play', 'requestFullscreen']);
+    });
+
+    it('excludes ECMAScript-private and @internal methods', () => {
+      const methods = findElement('SimpleVideo')!.reference.platforms.html.methods;
+
+      expect(methods).not.toContain('privateMethod');
+      expect(methods).not.toContain('internalMethod');
     });
 
     it('extracts native passthrough properties from the shared base host classes', () => {

@@ -33,6 +33,8 @@ export {
 } from '@videojs/media';
 // Media
 export * from '@videojs/media/dom';
+// The declaration bundler needs this explicit export for media element subpaths to reference the type.
+export type { CustomMediaConstructor } from '@videojs/media/dom';
 // Store
 export type { Comparator, Selector } from '@videojs/store';
 export { createSelector, shallowEqual } from '@videojs/store';
@@ -61,6 +63,7 @@ export {
   registerI18n,
   resolvePlayerLocale,
   resolveProviderLocale,
+  translateText,
 } from './i18n';
 export type { I18nContext as I18nLitContext } from './i18n/context';
 // i18n — `@videojs/html/i18n` registers `<media-i18n>` / `<media-text>`.

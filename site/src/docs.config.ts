@@ -15,7 +15,7 @@ export const sidebar: Sidebar = [
         llmsDescription:
           'Install Video.js, customize a skin, understand its main pieces, check browser and AI tool support, and contribute.',
         contents: [
-          { slug: 'guides/installation' },
+          { slug: 'guides/installation', sidebarLabel: 'Installation' },
           { slug: 'guides/installation-vue', sidebarLabel: 'Install with Vue', frameworks: ['html'], hidden: true },
           {
             slug: 'guides/installation-svelte',
@@ -23,6 +23,8 @@ export const sidebar: Sidebar = [
             frameworks: ['html'],
             hidden: true,
           },
+          { slug: 'guides/installation-shadcn', sidebarLabel: 'Install with Shadcn', hidden: true },
+          { slug: 'guides/installation-cdn', sidebarLabel: 'Install from CDN', frameworks: ['html'], hidden: true },
           {
             slug: 'guides/build-your-own-component',
             sidebarLabel: 'Build a component',
@@ -46,7 +48,10 @@ export const sidebar: Sidebar = [
       },
       {
         sidebarLabel: 'Environment',
-        llmsDescription: 'TypeScript, bundlers, the CDN, self-hosting, and Content Security Policy.',
+        llmsDescription: {
+          react: 'TypeScript, bundlers, and Content Security Policy.',
+          html: 'TypeScript, bundlers, the CDN, self-hosting, and Content Security Policy.',
+        },
         contents: [
           { slug: 'guides/typescript' },
           { slug: 'guides/bundlers' },
@@ -281,8 +286,11 @@ export const sidebar: Sidebar = [
   },
   {
     sidebarLabel: 'API',
-    llmsDescription:
-      'API reference for the player factory, store, features, menus, gestures, translation tools, and utilities.',
+    llmsDescription: {
+      react:
+        'API reference for the player factory, store, features, menus, gestures, translation tools, and utilities.',
+      html: 'API reference for the player factory, store controllers, features, translation tools, and utilities.',
+    },
     contents: [
       {
         sidebarLabel: 'Player',
@@ -300,8 +308,11 @@ export const sidebar: Sidebar = [
       },
       {
         sidebarLabel: 'Store',
-        llmsDescription:
-          'API reference for reading and subscribing to player state: selectors, snapshots, and the store controllers.',
+        llmsDescription: {
+          react:
+            'API reference for reading and subscribing to player state: selectors, the store hooks, and snapshots.',
+          html: 'API reference for reading and subscribing to player state: selectors and the store controllers.',
+        },
         contents: [
           { slug: 'reference/api/create-selector' },
           { slug: 'reference/api/use-store', frameworks: ['react'] },
@@ -361,8 +372,10 @@ export const sidebar: Sidebar = [
       },
       {
         sidebarLabel: 'i18n',
-        llmsDescription:
-          'API reference for translating the player: providers, hooks, elements, and the phrase registry.',
+        llmsDescription: {
+          react: 'API reference for translating the player: the provider, hooks, and the phrase registry.',
+          html: 'API reference for translating the player: the i18n elements, controller, and the phrase registry.',
+        },
         contents: [
           { slug: 'reference/api/i18n-provider', frameworks: ['react'] },
           { slug: 'reference/api/create-i18n' },
@@ -370,19 +383,21 @@ export const sidebar: Sidebar = [
           { slug: 'reference/api/use-locale', frameworks: ['react'] },
           { slug: 'reference/api/media-i18n', sidebarLabel: 'media-i18n', frameworks: ['html'] },
           { slug: 'reference/api/media-text', sidebarLabel: 'media-text', frameworks: ['html'] },
-          { slug: 'reference/api/translation-phrases', sidebarLabel: 'Translation keys' },
+          { slug: 'reference/api/translation-phrases' },
           { slug: 'reference/api/register-i18n', sidebarLabel: 'registerI18n' },
           { slug: 'reference/api/get-i18n-translations', sidebarLabel: 'getI18nTranslations' },
           { slug: 'reference/api/has-registered-locale', sidebarLabel: 'hasRegisteredLocale' },
           { slug: 'reference/api/on-i18n-registry-change', sidebarLabel: 'onI18nRegistryChange' },
           { slug: 'reference/api/create-translator', sidebarLabel: 'createTranslator' },
-          { slug: 'reference/api/i-18-n-controller', sidebarLabel: 'I18nController', frameworks: ['html'] },
+          { slug: 'reference/api/i18n-controller', sidebarLabel: 'I18nController', frameworks: ['html'] },
         ],
       },
       {
         sidebarLabel: 'Utils',
-        llmsDescription:
-          'Lower-level building blocks for custom components: refs, buttons, sliders, rendering, and keyboard shortcut controllers.',
+        llmsDescription: {
+          react: 'Lower-level building blocks for custom components: refs, buttons, sliders, and rendering.',
+          html: 'Lower-level building blocks for custom components: the keyboard shortcut controller.',
+        },
         contents: [
           { slug: 'reference/api/use-button', frameworks: ['react'] },
           { slug: 'reference/api/use-slider', frameworks: ['react'] },
@@ -392,6 +407,18 @@ export const sidebar: Sidebar = [
           { slug: 'reference/api/merge-props', frameworks: ['react'] },
           { slug: 'reference/api/render-element', frameworks: ['react'] },
           { slug: 'reference/api/aria-key-shortcuts-controller', frameworks: ['html'] },
+        ],
+      },
+      {
+        sidebarLabel: 'Error codes',
+        llmsDescription: 'Reference for codes thrown when Video.js 8 APIs are used with the Video.js 10 package.',
+        contents: [
+          { slug: 'reference/api/error-codes', sidebarLabel: 'Overview' },
+          { slug: 'reference/api/vjs8-legacy-init', sidebarLabel: 'VJS8_LEGACY_INIT' },
+          { slug: 'reference/api/vjs8-legacy-plugin', sidebarLabel: 'VJS8_LEGACY_PLUGIN' },
+          { slug: 'reference/api/vjs8-legacy-component', sidebarLabel: 'VJS8_LEGACY_COMPONENT' },
+          { slug: 'reference/api/vjs8-legacy-get-player', sidebarLabel: 'VJS8_LEGACY_GET_PLAYER' },
+          { slug: 'reference/api/vjs8-legacy-options', sidebarLabel: 'VJS8_LEGACY_OPTIONS' },
         ],
       },
     ],

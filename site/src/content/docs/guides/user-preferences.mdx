@@ -6,8 +6,6 @@ description: 'Persist volume, caption, and quality preferences across sessions b
 import DocsLink from '@/components/docs/DocsLink.astro';
 import FrameworkCase from '@/components/docs/FrameworkCase.astro';
 
-Persist player preferences — volume, muted, captions, quality — so returning users get the setup they left with.
-
 The player doesn't persist preferences itself today. Player state gives you everything needed to wire persistence to the storage you choose — local storage, your backend, or per-profile settings.
 
 ## Recommended approach
@@ -59,9 +57,8 @@ function VolumePersistence() {
       if (!store.target) return false;
       if (saved) {
         store.setVolume(saved.volume);
-        // setVolume above zero unmutes, so mute again if that's the saved preference.
-        // At volume zero the player already counts as muted, and toggling would unmute.
-        if (saved.muted && saved.volume > 0) store.toggleMuted();
+        // setVolume above zero unmutes, so apply the saved mute afterwards.
+        if (saved.muted) store.setMuted(true);
       }
       restored.current = true;
       return true;
@@ -129,9 +126,8 @@ export default function App() {
       if (!store.target) return false;
       const v = selectVolume(store.state);
       v?.setVolume(saved.volume);
-      // setVolume above zero unmutes, so mute again if that's the saved preference.
-      // At volume zero the player already counts as muted, and toggling would unmute.
-      if (v && saved.muted && saved.volume > 0) v.toggleMuted();
+      // setVolume above zero unmutes, so apply the saved mute afterwards.
+      if (saved.muted) v?.setMuted(true);
       return true;
     };
     if (!restore()) {
@@ -156,12 +152,22 @@ export default function App() {
 
 ## How it works
 
+<FrameworkCase frameworks={["react"]}>
 - Player state is the single source of truth: it already reflects every change, whatever caused it — your UI, keyboard shortcuts, native controls, or scripts.
 - `store.subscribe(callback)` fires on any state change. Notifications are batched per microtask, so rapid changes (a volume drag) produce one callback per tick, which keeps storage writes cheap. There is no per-key subscription on the store: read the state and diff the slice you care about.
-- In React, `usePlayer(selector)` re-renders only when the selected value changes; pairing it with an effect is the idiomatic save path.
-- Feature selectors exported by `@videojs/html` and `@videojs/react` (`selectVolume`, `selectTextTrack`, `selectQuality`, and the rest) read a feature's slice from any store, returning `undefined` when the feature isn't present.
-- Restore through the feature actions (`setVolume`, `toggleMuted`, `selectSubtitlesTrack`, `selectVideoRendition`) rather than poking the media element, so state and UI stay consistent.
+- `usePlayer(selector)` re-renders only when the selected value changes; pairing it with an effect is the idiomatic save path.
+- Feature selectors exported by `@videojs/react` (`selectVolume`, `selectTextTrack`, `selectQuality`, and the rest) read a feature's slice from any store, returning `undefined` when the feature isn't present.
+- Restore through the feature actions (`setVolume`, `setMuted`, `selectSubtitlesTrack`, `selectVideoRendition`) rather than poking the media element, so state and UI stay consistent.
 - Actions need an attached media target: calling one before the store attaches throws. Check `store.target` and defer the restore until it is set, as the examples do.
+</FrameworkCase>
+
+<FrameworkCase frameworks={["html"]}>
+- Player state is the single source of truth: it already reflects every change, whatever caused it — your UI, keyboard shortcuts, native controls, or scripts.
+- `store.subscribe(callback)` fires on any state change. Notifications are batched per microtask, so rapid changes (a volume drag) produce one callback per tick, which keeps storage writes cheap. There is no per-key subscription on the store: read the state and diff the slice you care about.
+- Feature selectors exported by `@videojs/html` (`selectVolume`, `selectTextTrack`, `selectQuality`, and the rest) read a feature's slice from any store, returning `undefined` when the feature isn't present.
+- Restore through the feature actions (`setVolume`, `setMuted`, `selectSubtitlesTrack`, `selectVideoRendition`) rather than poking the media element, so state and UI stay consistent.
+- Actions need an attached media target: calling one before the store attaches throws. Check `store.target` and defer the restore until it is set, as the examples do.
+</FrameworkCase>
 
 ## Availability and constraints
 
@@ -196,7 +202,7 @@ function CaptionsPersistence() {
       if (saved && (desired || saved === 'off')) {
         const applied = subtitles.every((t) => (t.mode === 'showing') === (t.id === desired?.id));
         if (!applied) {
-          store.selectSubtitlesTrack(desired?.id ?? 'off');
+          store.selectSubtitlesTrack(desired?.id ?? null);
           return;
         }
       }
@@ -216,7 +222,7 @@ function CaptionsPersistence() {
 </FrameworkCase>
 <FrameworkCase frameworks={["html"]}>
 
-Apply the same pattern with `selectTextTrack(store.state)` inside `store.subscribe`: until `canPlay` is true, re-apply the saved preference by passing the matching track's `id` (or `'off'`) to `selectSubtitlesTrack` whenever the modes drift; afterward, save the showing track's `language`, or `'off'` when none is showing, on every change.
+Apply the same pattern with `selectTextTrack(store.state)` inside `store.subscribe`: until `canPlay` is true, re-apply the saved preference by passing the matching track's `id` (or `null`) to `selectSubtitlesTrack` whenever the modes drift; afterward, save the showing track's `language`, or `'off'` when none is showing, on every change.
 
 </FrameworkCase>
 
@@ -246,8 +252,10 @@ Notifications batch per microtask, but a drag still produces many ticks. Debounc
 
 ## Related API
 
-- <DocsLink slug="reference/api/use-player">usePlayer</DocsLink>
-- <DocsLink slug="reference/api/use-store">useStore</DocsLink>
+- <DocsLink slug="reference/api/use-player" frameworks="react">usePlayer</DocsLink>
+- <DocsLink slug="reference/api/use-store" frameworks="react">useStore</DocsLink>
+- <DocsLink slug="reference/api/player-controller" frameworks="html">PlayerController</DocsLink>
+- <DocsLink slug="reference/api/store-controller" frameworks="html">StoreController</DocsLink>
 - <DocsLink slug="reference/api/feature-volume">Volume feature</DocsLink>
 - <DocsLink slug="reference/api/feature-text-tracks">Text track feature</DocsLink>
 

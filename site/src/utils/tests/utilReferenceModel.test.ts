@@ -65,6 +65,110 @@ describe('createUtilReferenceModel', () => {
     ]);
   });
 
+  it('builds a callable signature for function overloads', () => {
+    const ref: UtilReference = {
+      name: 'useSelector',
+      overloads: [
+        {
+          typeParameters: [{ name: 'S' }, { name: 'R' }],
+          parameters: {
+            subscribe: { type: 'function', required: true },
+            getSnapshot: { type: 'function', required: true },
+            selector: { type: 'function', required: true },
+            isEqual: { type: 'function' },
+          },
+          returnValue: { type: 'R' },
+        },
+      ],
+    };
+
+    const model = createUtilReferenceModel('useSelector', ref);
+
+    expect(model && !model.isMultiOverload ? model.signature : undefined).toBe(
+      'useSelector<S, R>(subscribe, getSnapshot, selector, isEqual?): R'
+    );
+  });
+
+  it('preserves const type parameters and constraints in callable signatures', () => {
+    const ref: UtilReference = {
+      name: 'createPlayer',
+      overloads: [
+        {
+          typeParameters: [{ name: 'Features', constraint: 'AnyPlayerFeature[]', const: true }],
+          returnType: 'CreatePlayerResult<PlayerStore<Features>>',
+          parameters: { config: { type: 'CreatePlayerConfig<Features>', required: true } },
+          returnValue: { type: 'object' },
+        },
+      ],
+    };
+
+    const model = createUtilReferenceModel('createPlayer', ref);
+
+    expect(model && !model.isMultiOverload ? model.signature : undefined).toBe(
+      'createPlayer<const Features extends AnyPlayerFeature[]>(config): CreatePlayerResult<PlayerStore<Features>>'
+    );
+  });
+
+  it('preserves rest parameters in callable signatures', () => {
+    const ref: UtilReference = {
+      name: 'useComposedRefs',
+      overloads: [
+        {
+          typeParameters: [{ name: 'T' }],
+          parameters: { refs: { type: 'OptionalRef<T>[]', rest: true } },
+          returnType: 'RefCallback<T>',
+          returnValue: { type: 'RefCallback<T>' },
+        },
+      ],
+    };
+
+    const model = createUtilReferenceModel('useComposedRefs', ref);
+
+    expect(model && !model.isMultiOverload ? model.signature : undefined).toBe(
+      'useComposedRefs<T>(...refs): RefCallback<T>'
+    );
+  });
+
+  it('prints type parameter defaults in callable signatures', () => {
+    const ref: UtilReference = {
+      name: 'useSlider',
+      overloads: [
+        {
+          typeParameters: [{ name: 'State', constraint: 'SliderState', default: 'SliderState' }],
+          parameters: { options: { type: 'object', required: true } },
+          returnType: 'UseSliderReturnValue<State>',
+          returnValue: { type: 'UseSliderReturnValue<State>' },
+        },
+      ],
+    };
+
+    const model = createUtilReferenceModel('useSlider', ref);
+
+    expect(model && !model.isMultiOverload ? model.signature : undefined).toBe(
+      'useSlider<State extends SliderState = SliderState>(options): UseSliderReturnValue<State>'
+    );
+  });
+
+  it('builds a constructor signature for controllers', () => {
+    const ref: UtilReference = {
+      name: 'PlayerController',
+      overloads: [
+        {
+          construct: true,
+          typeParameters: [{ name: 'Store', constraint: 'PlayerStore' }],
+          parameters: { host: { type: 'object', required: true }, context: { type: 'object', required: true } },
+          returnValue: { type: 'PlayerController<Store>' },
+        },
+      ],
+    };
+
+    const model = createUtilReferenceModel('PlayerController', ref);
+
+    expect(model && !model.isMultiOverload ? model.signature : undefined).toBe(
+      'new PlayerController<Store extends PlayerStore>(host, context)'
+    );
+  });
+
   it('builds a multi-overload model with overload H3s and H4 subsections', () => {
     const ref = {
       name: 'usePlayer',

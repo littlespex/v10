@@ -1,12 +1,33 @@
 import { sidebar as defaultSidebar } from '@/docs.config';
 import type { Sidebar, SupportedFramework } from '@/types/docs';
-import { DEFAULT_FRAMEWORK, isValidFramework } from '@/types/docs';
+import { DEFAULT_FRAMEWORK, isValidFramework, resolveDocsFramework } from '@/types/docs';
+import {
+  getInstallationRouteForSlug,
+  getInstallationRoutePath,
+  getInstallationRouteSegment,
+  INSTALLATION_ROUTE_PREFIX,
+  isShadcnInstallationUrl,
+} from '@/utils/installation/routes';
 
 import { findFirstGuide, findGuideBySlug, getValidFrameworksForGuide } from './sidebar';
 
-/** Build a docs URL from framework and guide slug components. */
+export { CANONICAL_INSTALLATION_SLUGS } from '@/utils/installation/routes';
+
+/** Build the public URL for a guide, including the canonical installation routes. */
 export function buildDocsUrl(framework: SupportedFramework, guideSlug: string): string {
+  const installationRoute = getInstallationRouteForSlug(guideSlug, framework);
+  if (installationRoute === 'shadcn') return `${getInstallationRoutePath('shadcn')}?framework=${framework}`;
+
+  if (installationRoute) return getInstallationRoutePath(installationRoute);
+
   return `/docs/framework/${framework}/${guideSlug}`;
+}
+
+/** Match a sidebar guide against the current URL, keeping installation selected across all installation methods. */
+export function isDocsGuideActive(framework: SupportedFramework, guideSlug: string, currentPath: string): boolean {
+  if (guideSlug === 'guides/installation') return currentPath.startsWith(INSTALLATION_ROUTE_PREFIX);
+
+  return buildDocsUrl(framework, guideSlug) === currentPath;
 }
 
 /**
@@ -14,14 +35,34 @@ export function buildDocsUrl(framework: SupportedFramework, guideSlug: string): 
  * preferred framework, and `resolveDocsHref` upgrades them on the client when the preference is known.
  */
 export function buildAgnosticDocsUrl(guideSlug?: string | null): string {
+  if (guideSlug === 'guides/installation') return INSTALLATION_ROUTE_PREFIX;
+
+  const installationRoute = getInstallationRouteForSlug(guideSlug, DEFAULT_FRAMEWORK);
+  if (installationRoute) return getInstallationRoutePath(installationRoute);
+
   return guideSlug ? `/docs/${guideSlug}` : '/docs';
 }
 
-/** Read the explicit framework segment from a docs URL. Framework-agnostic and invalid paths return null. */
+/** Read the framework selected by an explicit docs route. Framework-agnostic and invalid paths return null. */
 export function getFrameworkFromDocsPath(pathname: string): SupportedFramework | null {
   const framework = pathname.match(/^\/docs\/framework\/([^/]+)(?:\/|$)/)?.[1];
+  if (isValidFramework(framework)) return framework;
 
-  return isValidFramework(framework) ? framework : null;
+  const installationRoute = getInstallationRouteSegment(pathname);
+  if (installationRoute === 'shadcn') return null;
+
+  return resolveDocsFramework(installationRoute);
+}
+
+/** Read the selected framework from a docs URL, including Shadcn's query-controlled source framework. */
+export function getFrameworkFromDocsUrl(url: URL): SupportedFramework | null {
+  if (isShadcnInstallationUrl(url)) {
+    const framework = url.searchParams.get('framework');
+
+    return isValidFramework(framework) ? framework : null;
+  }
+
+  return getFrameworkFromDocsPath(url.pathname);
 }
 
 /** Input for resolveDocsHref */

@@ -18,11 +18,14 @@
  *
  * See `internal/design/spf/features/errors.md`.
  */
-import { getSvtaErrorCategory, getSvtaErrorIndex } from '@svta/cml-error-codes';
-
 /**
  * The standard codes SPF reports, one re-export per code rather than `export *` so this list stays the inventory of
  * what the engine can say. A new producer adds its code here, with a note on where it fires.
+ *
+ * `getSvtaErrorCategory` and `getSvtaErrorIndex` ride along: the spec's `code / 1000` and `code % 1000` arithmetic,
+ * uniform across the four-digit native form and the five-digit form embedding an external standard (`"03404"` is
+ * numerically 3404, which decomposes identically). Both answer `undefined` for input the spec assigns nothing to: a
+ * non-integer, a negative, or, for the category, the reserved `8`–`98` range.
  *
  * Media content and playback — the unsupported-source detection path:
  *
@@ -60,6 +63,8 @@ import { getSvtaErrorCategory, getSvtaErrorIndex } from '@svta/cml-error-codes';
  *   own defect, a corrupted key store). Reported for diagnosability; recovery is downstream.
  */
 export {
+  getSvtaErrorCategory,
+  getSvtaErrorIndex,
   SVTA_BAD_LICENSE_REQUEST,
   SVTA_DRM_CERTIFICATE_ERROR,
   SVTA_DRM_INITIALIZATION_ERROR,
@@ -83,7 +88,7 @@ export {
  * at which severity and user-facing text get decided.
  */
 export interface SvtaError {
-  /** The SVTA code — see {@link svtaCategory} / {@link svtaIndex}. */
+  /** The SVTA code — see `getSvtaErrorCategory` / `getSvtaErrorIndex`. */
   code: number;
   /** Engineer-facing detail. Optional; the code is the identity. */
   message?: string;
@@ -106,7 +111,7 @@ export interface SvtaError {
  * codes follow the `99CII` convention (see {@link SVTA_UNSUPPORTED_ENCRYPTION_METHOD}), while this cross-category
  * "can't play this" surface stays in the general `990XX` bucket.
  *
- * Five digits, and deliberately not special-cased anywhere: {@link svtaCategory} and {@link svtaIndex} decompose it
+ * Five digits, and deliberately not special-cased anywhere: `getSvtaErrorCategory` and `getSvtaErrorIndex` decompose it
  * correctly by arithmetic alone, because every standard category is below `8000` and custom starts at `99000`.
  */
 export const SVTA_UNSUPPORTED_PLAYBACK_FEATURE = 99001;
@@ -123,26 +128,8 @@ export const SVTA_UNSUPPORTED_PLAYBACK_FEATURE = 99001;
  * `99000` Unknown). Rather than number custom codes sequentially, they mirror the standard taxonomy in their index
  * digits: `99` + `C` (the standard category this parallels) + `II` (the index within it). So a content-protection
  * (category 4) custom cause is `994II`, and `99408` deliberately echoes standard `4008` as its non-DRM sibling.
- * {@link svtaCategory} / {@link svtaIndex} still decompose it by arithmetic (category `99`, index `408`); the parallel
- * is a reading convention, not something the math needs. General, cross-category custom codes stay in `990XX`.
+ * `getSvtaErrorCategory` / `getSvtaErrorIndex` still decompose it by arithmetic (category `99`, index `408`); the
+ * parallel is a reading convention, not something the math needs. General, cross-category custom codes stay in
+ * `990XX`.
  */
 export const SVTA_UNSUPPORTED_ENCRYPTION_METHOD = 99408;
-
-/**
- * The error's domain — `code / 1000`, per the spec's "divide by one thousand to obtain the error category". Works
- * uniformly across the four-digit native form and the five-digit form embedding an external standard: `"03404"` is
- * numerically 3404, which decomposes identically.
- *
- * An alias of CML's {@link getSvtaErrorCategory}, kept so the `@videojs/spf/hls` entry's surface stays stable. Answers
- * `undefined` for a code the spec assigns no category to: a non-integer, a negative, or one in the reserved `8`–`98`
- * range.
- */
-export const svtaCategory = getSvtaErrorCategory;
-
-/**
- * The specific error within its category — `code % 1000`. For a five-digit code this is the embedded external value (an
- * HTTP status, a VAST code).
- *
- * An alias of CML's {@link getSvtaErrorIndex}; `undefined` for anything but a non-negative integer.
- */
-export const svtaIndex = getSvtaErrorIndex;

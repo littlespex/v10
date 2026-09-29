@@ -85,9 +85,9 @@ retry-exhaustion, pipeline producers) are not.
   representation, not an outbound mapping, and the standard codes are
   imported from `@svta/cml-error-codes` (the spec's reference
   implementation) rather than transcribed here. A code is a single
-  integer, so `svtaCategory` / `svtaIndex` — aliases of CML's
-  `getSvtaErrorCategory` / `getSvtaErrorIndex` — decompose the 4- and
-  5-digit forms uniformly and the spec's inconsistent zero-padding is a
+  integer, so CML's `getSvtaErrorCategory` / `getSvtaErrorIndex`,
+  re-exported alongside the codes, decompose the 4- and 5-digit forms
+  uniformly and the spec's inconsistent zero-padding is a
   non-issue. One code is ours: the spec defines only `99000` (Unknown)
   in the custom category and leaves the rest to the publisher, so 99001
   is the first we define and the only one `errors.ts` still declares.
@@ -227,10 +227,10 @@ that module is the only place SPF imports CML
 4004, 4007, 4010, 4013, 4014, 4016, 4021). The same module holds what
 CML doesn't ship: `SvtaError` (`{ code, message?, data? }`), the
 publisher-defined `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` 99001 and
-`SVTA_UNSUPPORTED_ENCRYPTION_METHOD` 99408, and `svtaCategory` /
-`svtaIndex`, aliases of CML's `getSvtaErrorCategory` /
-`getSvtaErrorIndex` kept so the `@videojs/spf/hls` surface stays
-stable. Signal-free and DOM-free, so usable from any layer.
+`SVTA_UNSUPPORTED_ENCRYPTION_METHOD` 99408. CML's `getSvtaErrorCategory`
+/ `getSvtaErrorIndex` are re-exported with the codes and reach
+`@videojs/spf/hls` under those names. Signal-free and DOM-free, so
+usable from any layer.
 `@svta/cml-utils` is declared alongside because CML imports a type from
 it; nothing of it reaches the runtime output.
 
@@ -244,8 +244,8 @@ non-DRM sibling — the cause reported when a source is `identity`-keyformat
 decryptor for but is not a DRM key system (see
 [clear-key-aes](./clear-key-aes.md)). It joins `UNSUPPORTED_FEATURE_CAUSES`, so
 the adapter still surfaces `99001`. General, cross-category custom codes (the
-`99001` surface itself) stay in `990XX`; `svtaCategory` / `svtaIndex` decompose
-either by arithmetic alone.
+`99001` surface itself) stay in `990XX`; `getSvtaErrorCategory` /
+`getSvtaErrorIndex` decompose either by arithmetic alone.
 
 **Behaviors:**
 
@@ -386,8 +386,8 @@ limitations_).
 ## Verification
 
 - **Unit tests:**
-  - `packages/spf/src/media/tests/errors.test.ts` → `svtaCategory` /
-    `svtaIndex` — decomposition of the 4-digit native and 5-digit
+  - `packages/spf/src/media/tests/errors.test.ts` → `getSvtaErrorCategory` /
+    `getSvtaErrorIndex` — decomposition of the 4-digit native and 5-digit
     external forms, including the 0999 fully-unknown code, and the
     `undefined` CML answers for inputs the spec doesn't assign;
     `SVTA_UNSUPPORTED_PLAYBACK_FEATURE` — stays in the publisher range

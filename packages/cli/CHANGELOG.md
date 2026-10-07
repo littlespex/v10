@@ -1,5 +1,50 @@
 # Changelog
 
+## [10.0.1](https://github.com/videojs/v10/compare/@videojs/cli@10.0.0...@videojs/cli@10.0.1) (2026-10-02)
+
+
+### Miscellaneous Chores
+
+* **@videojs/cli:** Synchronize videojs versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @videojs/installation bumped to 10.0.1
+    * @videojs/utils bumped to 10.0.1
+
+## [10.0.0](https://github.com/videojs/v10/compare/@videojs/cli@10.0.0-rc.5...@videojs/cli@10.0.0) (2026-10-01)
+
+
+### Features
+
+* **packages:** release Video.js 10.0.0 as stable ([#3058](https://github.com/videojs/v10/issues/3058)) ([37477fc](https://github.com/videojs/v10/commit/37477fc187f36fc2ab3cbc0db7c1b2d3fc6bcca9))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @videojs/installation bumped to 10.0.0
+    * @videojs/utils bumped to 10.0.0
+
+## [10.0.0-rc.5](https://github.com/videojs/v10/compare/@videojs/cli@10.0.0-rc.4...@videojs/cli@10.0.0-rc.5) (2026-10-01)
+
+
+### Bug Fixes
+
+* **packages:** name Video.js 10 in npm descriptions and keywords ([#2995](https://github.com/videojs/v10/issues/2995)) ([8fda9a3](https://github.com/videojs/v10/commit/8fda9a36bede5cf92d446e25e56a96625cd60bc9))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @videojs/installation bumped to 10.0.0-rc.5
+    * @videojs/utils bumped to 10.0.0-rc.5
+
 ## [10.0.0-rc.4](https://github.com/videojs/v10/compare/@videojs/cli@10.0.0-rc.3...@videojs/cli@10.0.0-rc.4) (2026-09-26)
 
 

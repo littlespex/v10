@@ -143,10 +143,12 @@ export const sidebar: Sidebar = [
         llmsDescription:
           'Guides for moving an existing player integration to Video.js v10, one per player you might be coming from.',
         contents: [
+          { slug: 'guides/migrate', sidebarLabel: 'Overview' },
           { slug: 'guides/migrate-from-video-js-8', sidebarLabel: 'Video.js 8' },
           { slug: 'guides/migrate-from-mux-player', sidebarLabel: 'Mux Player' },
           { slug: 'guides/migrate-from-plyr', sidebarLabel: 'Plyr' },
           { slug: 'guides/migrate-from-media-chrome', sidebarLabel: 'Media Chrome' },
+          { slug: 'guides/migrate-from-vidstack', sidebarLabel: 'Vidstack' },
         ],
       },
     ],
@@ -169,13 +171,17 @@ export const sidebar: Sidebar = [
         llmsDescription: 'API reference for the packaged skins each preset ships.',
         contents: [
           { slug: 'reference/components/video-skin' },
-          { slug: 'reference/components/video-minimal-skin' },
+          { slug: 'reference/components/video-neutral-skin' },
+          { slug: 'reference/components/video-compat-skin' },
           { slug: 'reference/components/audio-skin' },
-          { slug: 'reference/components/audio-minimal-skin' },
+          { slug: 'reference/components/audio-neutral-skin' },
+          { slug: 'reference/components/audio-compat-skin' },
           { slug: 'reference/components/live-video-skin' },
-          { slug: 'reference/components/live-video-minimal-skin' },
+          { slug: 'reference/components/live-video-neutral-skin' },
+          { slug: 'reference/components/live-video-compat-skin' },
           { slug: 'reference/components/live-audio-skin' },
-          { slug: 'reference/components/live-audio-minimal-skin' },
+          { slug: 'reference/components/live-audio-neutral-skin' },
+          { slug: 'reference/components/live-audio-compat-skin' },
           { slug: 'reference/components/background-video-skin' },
         ],
       },
@@ -282,14 +288,19 @@ export const sidebar: Sidebar = [
           { slug: 'reference/components/status-announcer' },
         ],
       },
+      {
+        sidebarLabel: 'Icons',
+        llmsDescription: 'API reference for the icon sets the skins use, available for your own controls.',
+        contents: [{ slug: 'reference/components/icons' }],
+      },
     ],
   },
   {
     sidebarLabel: 'API',
     llmsDescription: {
       react:
-        'API reference for the player factory, store, features, menus, gestures, translation tools, and utilities.',
-      html: 'API reference for the player factory, store controllers, features, translation tools, and utilities.',
+        'API reference for the player factory, presets, store, features, menus, gestures, translation tools, and utilities.',
+      html: 'API reference for the player factory, presets, store controllers, features, translation tools, and utilities.',
     },
     contents: [
       {
@@ -299,11 +310,26 @@ export const sidebar: Sidebar = [
           { slug: 'reference/api/create-player', frameworks: ['react'] },
           { slug: 'reference/api/html-create-player', sidebarLabel: 'createPlayer', frameworks: ['html'] },
           { slug: 'reference/api/player-controller', frameworks: ['html'] },
+          { slug: 'reference/api/ui-element', sidebarLabel: 'UIElement', frameworks: ['html'] },
           { slug: 'reference/api/use-player', frameworks: ['react'] },
           { slug: 'reference/api/use-optional-player', frameworks: ['react'] },
+          { slug: 'reference/api/use-media', frameworks: ['react'] },
           { slug: 'reference/api/use-container', frameworks: ['react'] },
           { slug: 'reference/api/use-optional-container', frameworks: ['react'] },
           { slug: 'reference/api/use-container-attach', frameworks: ['react'] },
+          { slug: 'reference/api/media-capabilities', sidebarLabel: 'Media capability guards' },
+        ],
+      },
+      {
+        sidebarLabel: 'Presets',
+        llmsDescription:
+          'API reference for the presets: each bundles a player, feature bundle, skins, and media for one use case.',
+        contents: [
+          { slug: 'reference/api/preset-video', sidebarLabel: 'Video' },
+          { slug: 'reference/api/preset-audio', sidebarLabel: 'Audio' },
+          { slug: 'reference/api/preset-live-video', sidebarLabel: 'Live video' },
+          { slug: 'reference/api/preset-live-audio', sidebarLabel: 'Live audio' },
+          { slug: 'reference/api/preset-background', sidebarLabel: 'Background' },
         ],
       },
       {
@@ -314,6 +340,7 @@ export const sidebar: Sidebar = [
           html: 'API reference for reading and subscribing to player state: selectors and the store controllers.',
         },
         contents: [
+          { slug: 'reference/api/player-store', sidebarLabel: 'Overview' },
           { slug: 'reference/api/create-selector' },
           { slug: 'reference/api/use-store', frameworks: ['react'] },
           { slug: 'reference/api/use-selector', frameworks: ['react'] },
@@ -389,16 +416,25 @@ export const sidebar: Sidebar = [
           { slug: 'reference/api/has-registered-locale', sidebarLabel: 'hasRegisteredLocale' },
           { slug: 'reference/api/on-i18n-registry-change', sidebarLabel: 'onI18nRegistryChange' },
           { slug: 'reference/api/create-translator', sidebarLabel: 'createTranslator' },
+          { slug: 'reference/api/translate-text', sidebarLabel: 'translateText' },
+          { slug: 'reference/api/resolve-translation', sidebarLabel: 'resolveTranslation' },
+          { slug: 'reference/api/is-text', sidebarLabel: 'isText' },
+          { slug: 'reference/api/load-locale', sidebarLabel: 'loadLocale' },
+          { slug: 'reference/api/get-locale-key', sidebarLabel: 'getLocaleKey' },
+          { slug: 'reference/api/find-locale-keys', sidebarLabel: 'findLocaleKeys' },
           { slug: 'reference/api/i18n-controller', sidebarLabel: 'I18nController', frameworks: ['html'] },
         ],
       },
       {
         sidebarLabel: 'Utils',
         llmsDescription: {
-          react: 'Lower-level building blocks for custom components: refs, buttons, sliders, and rendering.',
-          html: 'Lower-level building blocks for custom components: the keyboard shortcut controller.',
+          react:
+            'Lower-level building blocks: adapter and MIME type resolution, and refs, buttons, sliders, and rendering for custom components.',
+          html: 'Lower-level building blocks: adapter and MIME type resolution, and the keyboard shortcut controller for custom components.',
         },
         contents: [
+          { slug: 'reference/api/resolve-adapter-type', sidebarLabel: 'resolveAdapterType' },
+          { slug: 'reference/api/resolve-mime-type', sidebarLabel: 'resolveMimeType' },
           { slug: 'reference/api/use-button', frameworks: ['react'] },
           { slug: 'reference/api/use-slider', frameworks: ['react'] },
           { slug: 'reference/api/use-composed-refs', frameworks: ['react'] },

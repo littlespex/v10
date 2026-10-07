@@ -2,7 +2,6 @@ import cdnPackage from '../../packages/cdn/package.json' with { type: 'json' };
 import htmlPackage from '../../packages/html/package.json' with { type: 'json' };
 // The Vite config reaches this module while discovering the workspace task graph, before package builds run.
 import { INSTALLATION_DEMO_SOURCES } from '../../packages/installation/src/defaults.ts';
-import utilsPackage from '../../packages/utils/package.json' with { type: 'json' };
 
 // Always https://videojs.org. Unlike Astro.site, which varies per deploy
 // (e.g. deploy preview URLs), this is stable for canonical URLs and other
@@ -11,6 +10,8 @@ export const PRODUCTION_URL = new URL('https://videojs.org');
 // Pre-release docs host (branch deploy of `main`). Keep references centralized
 // here so the hostname can move without touching components.
 export const PRERELEASE_URL = new URL('https://main.videojs.org');
+// Docs for Video.js 8 and earlier.
+export const LEGACY_URL = new URL('https://legacy.videojs.org');
 export const SITE_TITLE = 'Video.js';
 export const SEO_SUFFIX = 'Open Source Video Player';
 /** Month (`YYYY-MM`) of the first Video.js 10 blog post; earlier posts document Video.js 1 through 8. */
@@ -34,12 +35,10 @@ export const THEME_COLORS = {
   soft: '#1e1d1d',
   deep: '#151414',
 } as const;
-export const BANNER_DISMISS_KEY = 'vjs-legacy-banner-dismissed';
 export const BLOG_PAGE_SIZE = 10;
 export const CDN_URL_BASE = `https://cdn.jsdelivr.net/npm`;
 export const VJS10_VERSION = htmlPackage.version;
 export const VJS10_CDN_BASE = `${CDN_URL_BASE}/@videojs/cdn@${cdnPackage.version}`;
-export const VJS10_UTILS_CDN_BASE = `${CDN_URL_BASE}/@videojs/utils@${utilsPackage.version}`;
 export const VJS10_CDN_ARCHIVE_VERSION = cdnPackage.version;
 
 export function isPrereleaseSite(siteUrl: URL | undefined): boolean {

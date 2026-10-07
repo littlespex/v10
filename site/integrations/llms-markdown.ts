@@ -33,8 +33,6 @@ import { staticMarkdownHeaderRules } from '../src/utils/markdown-handler';
 import { outsideCodeFences } from '../src/utils/markdown-text';
 import { filterSidebarForLlms, llmsSections, sidebarSlugs } from './llms-sections';
 
-export { llmsIndexPaths } from './llms-sections';
-
 export interface PageEntry {
   pathname: string;
   title: string;
@@ -451,6 +449,28 @@ export function createTurndown(): TurndownService {
       const fence = '`'.repeat(longestRun + 1);
 
       return `\n\n${fence}${pre.getAttribute('data-language')}\n${code}\n${fence}\n\n`;
+    },
+  });
+
+  // Footnotes render as numbered links into a definitions section; emit GFM footnote syntax instead, which agents and
+  // Markdown renderers read as footnotes rather than as links to ids the Markdown file does not have.
+  turndown.addRule('footnote-ref', {
+    filter: (node) => node.nodeName === 'A' && hasAttribute(node, 'data-footnote-ref'),
+    replacement: (content) => `[^${content}]`,
+  });
+
+  turndown.addRule('footnotes', {
+    filter: (node) => node.nodeName === 'SECTION' && hasAttribute(node, 'data-footnotes'),
+    replacement: (_content, node) => {
+      const items = Array.from(node.querySelector('ol')?.children ?? []);
+      const definitions = items.map((item, index) => {
+        // SAFETY: the children of an `<ol>` are `<li>` elements.
+        const body = turndown.turndown(item as HTMLElement).replace(/\n(?=[^\n])/g, '\n    ');
+
+        return `[^${index + 1}]: ${body}`;
+      });
+
+      return `\n\n${definitions.join('\n')}\n\n`;
     },
   });
 
@@ -1106,6 +1126,10 @@ export function generateDocsIndex(
   content += `> Install the [Video.js skill](https://github.com/videojs/skills) to help AI coding agents find version-matched pages from this index.\n\n`;
 
   content += `> The \`video.js\` package on npm is still Video.js 8. Video.js 10 ships as \`@videojs/${framework}\`; to move existing Video.js 8 code, read ${siteUrl}/docs/framework/${framework}/guides/migrate-from-video-js-8.md\n\n`;
+
+  const vidstackPackage = framework === 'react' ? '@vidstack/react' : 'vidstack';
+
+  content += `> Vidstack Player is in security-only maintenance. To move existing \`${vidstackPackage}\` code, read ${siteUrl}/docs/framework/${framework}/guides/migrate-from-vidstack.md\n\n`;
 
   content += `> Print version-matched installation options without changing files: \`npx @videojs/cli agents init\`, then pass \`--framework ${framework}\` with the other choices. Installation guide index: ${siteUrl}/docs/guides/installation.md\n\n`;
 

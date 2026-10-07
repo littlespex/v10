@@ -2,8 +2,6 @@
 
 [![package-badge]][package]
 
-> **⚠️ Release candidate** Close to stable. Adoption in real projects encouraged.
-
 The Video.js 10 command line. `agents init` prints version-matched installation instructions for a coding agent or
 for you to follow: the packages to install, the files to add, and the commands to run for your framework, installation
 method, player, skin, and media source. `agents skills` prints how to install the
@@ -87,7 +85,7 @@ members:
 
 ## License
 
-[Apache-2.0](./LICENSE)
+[Apache-2.0](../../LICENSE)
 
 [package]: https://www.npmjs.com/package/@videojs/cli
 [package-badge]: https://img.shields.io/npm/v/@videojs/cli?label=@videojs/cli

@@ -101,61 +101,33 @@ describe('HlsAudioAdapterCore', () => {
   // attach / detach — media element lifecycle (reuses the same engine)
   // ---------------------------------------------------------------------------
   describe('attach / detach', () => {
-    it('exposes the engine immediately (created at construction, not on attach)', () => {
+    it('reuses the same engine instance across attach/detach cycles', async () => {
       const media = new HlsAudioAdapterCore();
-
-      expect(media.engine).not.toBeNull();
-    });
-
-    it('reuses the same engine instance across attach calls', () => {
-      const media = new HlsAudioAdapterCore();
-      const el1 = document.createElement('video');
-      const el2 = document.createElement('video');
-
-      media.attach(el1);
-      const engineAfterFirstAttach = media.engine;
-
-      media.attach(el2);
-      expect(media.engine).toBe(engineAfterFirstAttach);
-    });
-
-    it('reuses the same engine instance across attach/detach cycles', () => {
-      const media = new HlsAudioAdapterCore();
-
-      media.attach(document.createElement('video'));
       const engine = media.engine;
+      const destroy = vi.spyOn(engine, 'destroy');
+      const first = document.createElement('video');
+      const second = document.createElement('video');
 
-      media.detach();
-      media.attach(document.createElement('video'));
-      expect(media.engine).toBe(engine);
-    });
-
-    it('reuses the same engine instance when src is set', () => {
-      const media = new HlsAudioAdapterCore();
-      const initial = media.engine;
-
-      media.src = 'https://example.com/v1.m3u8';
-      expect(media.engine).toBe(initial);
-    });
-
-    it('reuses the same engine instance when src changes', () => {
-      const media = new HlsAudioAdapterCore();
-
-      media.src = 'https://example.com/v1.m3u8';
-      const engine = media.engine;
-
-      media.src = 'https://example.com/v2.m3u8';
-      expect(media.engine).toBe(engine);
-    });
-
-    it('does not destroy the engine when src changes', () => {
-      const media = new HlsAudioAdapterCore();
-
-      media.src = 'https://example.com/v1.m3u8';
-      const spy = vi.spyOn(media.engine, 'destroy');
-
-      media.src = 'https://example.com/v2.m3u8';
-      expect(spy).not.toHaveBeenCalled();
+      try {
+        expect(engine).toBeDefined();
+        media.attach(first);
+        expect(media.engine).toBe(engine);
+        media.attach(second);
+        expect(media.engine).toBe(engine);
+        media.detach();
+        expect(media.engine).toBe(engine);
+        media.attach(first);
+        expect(media.engine).toBe(engine);
+        media.src = 'https://example.com/v1.m3u8';
+        expect(media.engine).toBe(engine);
+        media.src = 'https://example.com/v2.m3u8';
+        expect(media.engine).toBe(engine);
+        expect(destroy).not.toHaveBeenCalled();
+      } finally {
+        media.destroy();
+        await destroy.mock.results[0]!.value;
+        destroy.mockRestore();
+      }
     });
 
     it('keeps the attached media element across src changes', () => {
@@ -210,30 +182,38 @@ describe('HlsAudioAdapterCore', () => {
       media.attach(document.createElement('video'));
       expect(media.engine.state.presentation.get()?.url).toBe('https://example.com/v.m3u8');
     });
-
-    it('detach does not destroy the engine', () => {
-      const media = new HlsAudioAdapterCore();
-
-      media.attach(document.createElement('video'));
-      const spy = vi.spyOn(media.engine, 'destroy');
-
-      media.detach();
-      expect(spy).not.toHaveBeenCalled();
-    });
   });
 
   // ---------------------------------------------------------------------------
   // play() — WHATWG §4.8.11.8
   // ---------------------------------------------------------------------------
   describe('play()', () => {
-    it('returns a Promise', () => {
+    it.each(['src change', 'detach', 'destroy'] as const)('cancels a pending play retry on %s', async (action) => {
       const media = new HlsAudioAdapterCore();
+      const el = document.createElement('audio');
+      const play = vi
+        .spyOn(el, 'play')
+        .mockRejectedValueOnce(new Error('no supported sources'))
+        .mockResolvedValue(undefined);
 
-      media.attach(document.createElement('video'));
-      const result = media.play();
+      try {
+        media.attach(el);
+        media.src = 'https://example.com/v1.m3u8';
+        media.play().catch(() => {});
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        expect(play).toHaveBeenCalledTimes(1);
 
-      expect(result).toBeInstanceOf(Promise);
-      result.catch(() => {});
+        if (action === 'src change') media.src = 'https://example.com/v2.m3u8';
+        else if (action === 'detach') media.detach();
+        else media.destroy();
+
+        el.dispatchEvent(new Event('loadstart'));
+        await Promise.resolve();
+        expect(play).toHaveBeenCalledTimes(1);
+      } finally {
+        media.destroy();
+        play.mockRestore();
+      }
     });
 
     it('sets loadActivated on engine state when called', () => {
@@ -370,6 +350,59 @@ describe('HlsAudioAdapterCore', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // crossOrigin — synchronous IDL attribute doubling as request-credentials intent
+  // (full contract pinned on the video adapter; this checks the audio wiring)
+  // ---------------------------------------------------------------------------
+  describe('crossOrigin', () => {
+    /** The `credentials` mode the engine's next manifest request carries — see the video adapter tests. */
+    async function manifestCredentials(media: HlsAudioAdapterCore, url = 'https://cdn.example.com/master.m3u8') {
+      const fetchMock = vi.mocked(globalThis.fetch);
+
+      // Unload first and let the reactor observe it: a pending resolve is not
+      // restarted by another URL, and two synchronous writes coalesce.
+      fetchMock.mockClear();
+      media.src = '';
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      media.preload = 'auto';
+      media.src = url;
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      expect(fetchMock).toHaveBeenCalledOnce();
+
+      // SAFETY: `fetchResolvable` always calls `fetch` with a `Request`.
+      return (fetchMock.mock.calls[0]![0] as Request).credentials;
+    }
+
+    it('is null by default, leaving requests at the platform default', async () => {
+      const media = new HlsAudioAdapterCore();
+
+      expect(media.crossOrigin).toBeNull();
+      expect(await manifestCredentials(media)).toBe('same-origin');
+    });
+
+    it('sends credentials for use-credentials, and follows a later change on the same engine', async () => {
+      const media = new HlsAudioAdapterCore();
+
+      media.crossOrigin = 'use-credentials';
+      expect(media.crossOrigin).toBe('use-credentials');
+      expect(await manifestCredentials(media, 'https://cdn.example.com/a.m3u8')).toBe('include');
+
+      media.crossOrigin = 'anonymous';
+      expect(await manifestCredentials(media, 'https://cdn.example.com/b.m3u8')).toBe('same-origin');
+    });
+
+    it('adopts the crossorigin attribute of an attached element when none was set', async () => {
+      const media = new HlsAudioAdapterCore();
+      const el = document.createElement('audio');
+
+      el.setAttribute('crossorigin', 'use-credentials');
+      media.attach(el);
+
+      expect(await manifestCredentials(media)).toBe('include');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // destroy()
   // ---------------------------------------------------------------------------
   describe('destroy()', () => {
@@ -485,13 +518,20 @@ describe('HlsAudioAdapterCore', () => {
 
     it('stops promoting conditions after destroy', async () => {
       const media = new TestAdapter();
+      const fired: Event[] = [];
+      const destroy = vi.spyOn(media.engine, 'destroy');
 
+      media.addEventListener('error', (event) => fired.push(event));
       media.destroy();
+      await destroy.mock.results[0]!.value;
 
+      // Write after engine cleanup so clearing its signals cannot hide a live effect.
       media.engine.state.errors.set([{ code: SVTA_NO_SUPPORTED_AUDIO_TRACK }]);
       await flush();
 
+      expect(fired).toHaveLength(0);
       expect(media.error).toBeNull();
+      destroy.mockRestore();
     });
   });
 });

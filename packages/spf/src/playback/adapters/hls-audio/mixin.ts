@@ -1,3 +1,5 @@
+import { type MediaCrossOriginType, toMediaCrossOrigin } from '@videojs/media';
+import { onEvent } from '@videojs/utils/dom';
 import type { Constructor, MixinReturn } from '@videojs/utils/types';
 
 import type { Composition } from '../../../core/composition/create-composition';
@@ -7,6 +9,7 @@ import {
   SVTA_UNSUPPORTED_PLAYBACK_FEATURE,
   type SvtaError,
 } from '../../../media/errors';
+import { crossOriginToRequestCredentials } from '../../../network/request-credentials';
 import {
   createHlsAudioEngine,
   type HlsAudioEngineConfig,
@@ -33,6 +36,12 @@ export interface HlsAudioAdapterProps {
   src: string;
   source: HlsVideoSource | null;
   preload: '' | 'none' | 'metadata' | 'auto';
+  /**
+   * The element's CORS-settings attribute: a mode, the bare attribute (`''`, read as `anonymous`), or `null` for none.
+   * `use-credentials` also sends cookies with every manifest, playlist, and segment request the engine makes; any other
+   * value leaves those requests at the platform default.
+   */
+  crossOrigin: MediaCrossOriginType | '' | null;
   disableRemotePlayback: boolean;
 }
 
@@ -77,6 +86,7 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
       src: '',
       source: null,
       preload: '',
+      crossOrigin: null,
       disableRemotePlayback: false,
     };
 
@@ -96,14 +106,15 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
     #config: HlsAudioEngineConfig;
     #signals!: HlsAudioEngineSignals;
     #preload: '' | 'none' | 'metadata' | 'auto' = HlsAudioImpl.defaultProps.preload;
+    #crossOrigin: MediaCrossOriginType | null = toMediaCrossOrigin(HlsAudioImpl.defaultProps.crossOrigin);
     #disableRemotePlayback: boolean = HlsAudioImpl.defaultProps.disableRemotePlayback;
     #error: HlsVideoMediaError | null = null;
     /** Reported condition currently surfaced — see the video adapter's note. */
     #reportedCode: number | null = null;
     #stopErrorSync: () => void;
 
-    /** Pending loadstart listener from a deferred play() retry, if any. */
-    #loadstartListener: (() => void) | null = null;
+    /** Aborting a generation cancels all retries, including ones not yet registered. */
+    #playGeneration = new AbortController();
     #source: HlsVideoSource | null = HlsAudioImpl.defaultProps.source;
 
     constructor(...args: any[]) {
@@ -178,8 +189,16 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
     // -------------------------------------------------------------------------
 
     attach(mediaElement: HTMLMediaElement): void {
+      if (mediaElement !== this.#signals.context.mediaElement.get()) {
+        this.#cancelPendingPlay();
+      }
+
       super.attach?.(mediaElement);
       this.#signals.context.mediaElement.set(mediaElement);
+
+      // Most-recent-wins on attach — see the video mixin.
+      this.#crossOrigin = toMediaCrossOrigin(mediaElement.crossOrigin) ?? this.#crossOrigin;
+      mediaElement.crossOrigin = this.#crossOrigin;
     }
 
     detach(): void {
@@ -192,6 +211,27 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
       this.#cancelPendingPlay();
       this.#stopErrorSync();
       this.#engine.destroy();
+    }
+
+    // -------------------------------------------------------------------------
+    // crossOrigin — synchronous IDL attribute (WHATWG §4.8.11.2)
+    // Reflected onto the attached media element (`null` removes it), and the
+    // author's request-credentials intent for the engine's own fetches, read
+    // per request through the policy `#createEngine` installs. See the video
+    // mixin.
+    // -------------------------------------------------------------------------
+
+    get crossOrigin(): MediaCrossOriginType | null {
+      return this.#crossOrigin;
+    }
+
+    set crossOrigin(value: MediaCrossOriginType | '' | null) {
+      // Limited to known values, as the element reflects it — see the video mixin.
+      this.#crossOrigin = toMediaCrossOrigin(value);
+
+      const mediaElement = this.#signals.context.mediaElement.get();
+
+      if (mediaElement) mediaElement.crossOrigin = value;
     }
 
     // -------------------------------------------------------------------------
@@ -291,18 +331,18 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
       const mediaElement = this.#signals.context.mediaElement.get();
       if (!mediaElement) return Promise.reject(new Error('HlsAudioAdapterCore: no media element attached'));
 
+      const { signal } = this.#playGeneration;
+
       this.#signals.state.loadActivated.set(true);
 
       return mediaElement.play().catch((err: unknown) => {
-        if (this.src) {
-          return new Promise<void>((resolve, reject) => {
-            const listener = () => {
-              this.#loadstartListener = null;
-              mediaElement.play().then(resolve, reject);
-            };
+        signal.throwIfAborted();
 
-            this.#loadstartListener = listener;
-            mediaElement.addEventListener('loadstart', listener, { once: true });
+        if (this.src) {
+          return onEvent(mediaElement, 'loadstart', { signal }).then(() => {
+            signal.throwIfAborted();
+
+            return mediaElement.play();
           });
         }
 
@@ -322,6 +362,9 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
     #createEngine(): Composition<HlsAudioEngineState, HlsAudioEngineContext> {
       return createHlsAudioEngine({
         ...this.#config,
+        // A policy, not a value — see the video mixin. A consumer-supplied one wins.
+        requestCredentials:
+          this.#config?.requestCredentials ?? (() => crossOriginToRequestCredentials(this.#crossOrigin)),
         onSignalsReady: (signals) => {
           this.#signals = signals;
         },
@@ -329,12 +372,8 @@ export function HlsAudioMixin<Base extends Constructor<any>>(BaseClass: Base) {
     }
 
     #cancelPendingPlay(): void {
-      if (!this.#loadstartListener) return;
-
-      const mediaElement = this.#signals.context.mediaElement.get();
-
-      mediaElement?.removeEventListener('loadstart', this.#loadstartListener);
-      this.#loadstartListener = null;
+      this.#playGeneration.abort();
+      this.#playGeneration = new AbortController();
     }
   }
 
